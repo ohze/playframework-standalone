@@ -2,6 +2,7 @@ package play.api
 
 import org.specs2.mutable.Specification
 import java.io.File
+import play.api.db.BoneCPPlugin
 
 /**
  * @author giabao
@@ -19,7 +20,7 @@ class PlaySpec extends Specification{
     "can load DBPlugin" in {
       val app = new SimpleApplication(new File("."), Mode.Test)
       Play.start(app)
-      Play.current.plugins must not be empty
+      Play.current.plugins must contain((p: Plugin) => p.isInstanceOf[BoneCPPlugin])
     }
   }
 }

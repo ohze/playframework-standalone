@@ -10,10 +10,6 @@ scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feat
 
 javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.7", "-target", "1.7", "-Xlint:unchecked", "-Xlint:deprecation")
 
-unmanagedResourceDirectories := Seq(
-    file("play-jdbc/src/main/resources")
-)
-
 unmanagedSourceDirectories in Compile := Seq(
     file("play/src/main/scala"),
     file("play-jdbc/src/main/scala"),
