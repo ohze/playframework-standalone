@@ -6,6 +6,7 @@ import play.utils.Threads
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 
+/** This is a simplified version of the original Play code */
 trait WithDefaultConfiguration {
   self: Application =>
 
