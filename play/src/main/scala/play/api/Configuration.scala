@@ -1,8 +1,10 @@
 package play.api
 
-import com.typesafe.config.{ConfigOrigin, ConfigFactory, ConfigException, Config}
+import com.typesafe.config._
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
+import java.io.File
+import scala.Some
 
 /**
  * @author giabao
@@ -12,6 +14,51 @@ import scala.collection.JavaConverters._
  * This is a simplified version of the original Play
  */
 object Configuration{
+  private[this] lazy val dontAllowMissingConfigOptions = ConfigParseOptions.defaults().setAllowMissing(false)
+
+  private[this] lazy val dontAllowMissingConfig = ConfigFactory.load(dontAllowMissingConfigOptions)
+
+  /**
+   * loads `Configuration` from config.resource or config.file. If not found default to 'conf/application.conf' in Dev mode
+   * @return  configuration to be used
+   */
+  private[play] def loadDev(appPath: File, devSettings: Map[String, String]): Config = {
+    try {
+      lazy val file = {
+        devSettings.get("config.file").orElse(Option(System.getProperty("config.file")))
+          .map(f => new File(f)).getOrElse(new File(appPath, "conf/application.conf"))
+      }
+      val config = Option(System.getProperty("config.resource"))
+        .map(ConfigFactory.parseResources).getOrElse(ConfigFactory.parseFileAnySyntax(file))
+
+      ConfigFactory.parseMap(devSettings.asJava).withFallback(ConfigFactory.load(config))
+    } catch {
+      case e: ConfigException => throw configError(e.origin, e.getMessage, Some(e))
+    }
+  }
+
+  /**
+   * Loads a new `Configuration` either from the classpath or from
+   * `conf/application.conf` depending on the application's Mode.
+   *
+   * The provided mode is used if the application is not ready
+   * yet, just like when calling this method from `play.api.Application`.
+   *
+   * Defaults to Mode.Dev
+   *
+   * @param mode Application mode.
+   * @return a `Configuration` instance
+   */
+  def load(appPath: File, mode: Mode.Mode = Mode.Dev, devSettings: Map[String, String] = Map.empty) = {
+    try {
+      val currentMode = Play.maybeApplication.map(_.mode).getOrElse(mode)
+      if (currentMode == Mode.Prod) Configuration(dontAllowMissingConfig) else Configuration(loadDev(appPath, devSettings))
+    } catch {
+      case e: ConfigException => throw configError(e.origin, e.getMessage, Some(e))
+      case e: Throwable => throw e
+    }
+  }
+
   /**
    * Returns an empty Configuration object.
    */
