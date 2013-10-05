@@ -16,6 +16,8 @@ unmanagedSourceDirectories in Compile := Seq(
     file("play-exceptions/src/main/java")
 )
 
+parallelExecution in Test := false
+
 //note: boncp 0.8.0-rc3 upgraded to guava 15.0
 //https://github.com/wwadge/bonecp/commit/9585251054b052ed6005299ee360332a716468d7#diff-600376dffeb79835ede4a0b285078036
 

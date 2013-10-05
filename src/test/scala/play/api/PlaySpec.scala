@@ -1,7 +1,6 @@
 package play.api
 
 import org.specs2.mutable.Specification
-import java.io.File
 import play.api.db.BoneCPPlugin
 
 /**
@@ -12,13 +11,13 @@ import play.api.db.BoneCPPlugin
 class PlaySpec extends Specification{
   "Play" should {
     "can start with SimpleApplication" in {
-      val app = new SimpleApplication(new File("."), Mode.Test)
+      val app = new SimpleApplication(null)
       Play.start(app)
       Play.maybeApplication must beSome[Application]
     }
 
     "can load DBPlugin" in {
-      val app = new SimpleApplication(new File("."), Mode.Test)
+      val app = new SimpleApplication(null)
       Play.start(app)
       Play.current.plugins must contain((p: Plugin) => p.isInstanceOf[BoneCPPlugin])
     }

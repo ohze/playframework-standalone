@@ -15,11 +15,6 @@ import java.io.File
 @implicitNotFound(msg = "You do not have an implicit Application in scope. If you want to bring the current running Application into context, just add import play.api.Play.current")
 trait Application {
   /**
-   * The absolute path hosting this application, mainly used by the `getFile(path)` helper method
-   */
-  def path: File
-
-  /**
    * The application's classloader
    */
   def classloader: ClassLoader
