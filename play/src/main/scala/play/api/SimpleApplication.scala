@@ -13,7 +13,7 @@ import play.utils.Threads
  */
 class SimpleApplication(devAppPath: File, val mode: Mode.Mode = Mode.Test) extends Application{
   /** Constructor for Prod mode.
-    * Configuration will be load using [[play.api.Configuration#dontAllowMissingConfig()]] */
+    * Configuration will be load using play.api.Configuration#dontAllowMissingConfig() */
   def this() = this(null, Mode.Prod)
 
   def classloader = this.getClass.getClassLoader
