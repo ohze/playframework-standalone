@@ -22,7 +22,7 @@ parallelExecution in Test := false
 //https://github.com/wwadge/bonecp/commit/9585251054b052ed6005299ee360332a716468d7#diff-600376dffeb79835ede4a0b285078036
 
 libraryDependencies ++= Seq(
-    "org.specs2"                    % "specs2_2.10"     % "2.2.2"   % "test",
+    "org.specs2"                    %% "specs2"         % "2.2.3"   % "test",
     "com.h2database"                % "h2"              % "1.3.173" % "test",
     "com.typesafe.play"             %% "anorm"          % "2.2.0"   % "test",
     "ch.qos.logback"                % "logback-classic" % "1.0.13",
