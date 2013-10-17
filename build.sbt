@@ -2,7 +2,7 @@ organization := "com.sandinh"
 
 name := "play-jdbc-standalone"
 
-version := "1.0.0_2.2" //2.2 is version of Play
+version := "2.0.0_2.2"
 
 scalaVersion := "2.10.3"
 
@@ -25,8 +25,6 @@ libraryDependencies ++= Seq(
     "org.specs2"                    %% "specs2"         % "2.2.3"   % "test",
     "com.h2database"                % "h2"              % "1.3.173" % "test",
     "com.typesafe.play"             %% "anorm"          % "2.2.0"   % "test",
-    "ch.qos.logback"                % "logback-classic" % "1.0.13",
-    "org.slf4j"                     % "jul-to-slf4j"    % "1.7.5",
     "com.github.scala-incubator.io" %% "scala-io-core"  % "0.4.2",
     "com.typesafe"                  % "config"          % "1.0.2",
     "com.jolbox"                    % "bonecp"          % "0.8.0-rc3" exclude("com.google.guava", "guava"),
