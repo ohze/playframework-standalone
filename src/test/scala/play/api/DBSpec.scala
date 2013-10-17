@@ -27,7 +27,7 @@ class DBSpec extends Specification{
 
   "DBPlugin" should{
     "execute sql using anorm" in {
-      val app = new SimpleApplication(new File("src/test/resources"))
+      val app = new SimpleApplication(new File("src/test/resources/conf/application.conf"))
       Play.start(app)
       DB.withConnection{implicit c =>
         SQL(sqlCreate).executeUpdate() === 0

@@ -25,6 +25,7 @@ Incompatible change in play-jdbc-standalone 2.x:
   If you don't use those members in your code, then ver 2.x is source-compatible with 1.x.
   (But now, you need manually config your logger)
 
+This version also add som convenient constructors to [SimpleApplication](https://github.com/giabao/play-jdbc-standalone/blob/master/play/src/main/scala/play/api/SimpleApplication.scala)
 ##### v1.0.0_2.2
 First stable release
 
