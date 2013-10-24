@@ -12,6 +12,10 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 
 ### Changelogs
 Note: `_2.2` in version number is the compatible version of (original) Play
+
+##### v2.0.1_2.2
+Update bonecp 0.8.0.RELEASE
+
 ##### v2.0.0_2.2
 Version 2 remove dependencies: logback, jul-to-slf4j.
 This permit us to use play-jdbc-standalone in an existing system that use another logging framework.
@@ -26,6 +30,7 @@ Incompatible change in play-jdbc-standalone 2.x:
   (But now, you need manually config your logger)
 
 This version also add som convenient constructors to [SimpleApplication](https://github.com/giabao/play-jdbc-standalone/blob/master/play/src/main/scala/play/api/SimpleApplication.scala)
+
 ##### v1.0.0_2.2
 First stable release
 
