@@ -18,10 +18,12 @@ unmanagedSourceDirectories in Compile := Seq(
 
 parallelExecution in Test := false
 
+resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
+
 libraryDependencies ++= Seq(
     "org.specs2"                    %% "specs2"         % "2.2.3"   % "test",
     "com.h2database"                % "h2"              % "1.3.174" % "test",
-    "com.typesafe.play"             %% "anorm"          % "2.2.0"   % "test",
+    "com.typesafe.play"             %% "anorm"          % "2.2.1"   % "test",
     "com.github.scala-incubator.io" %% "scala-io-core"  % "0.4.2",
     "com.typesafe"                  % "config"          % "1.0.2",
     "com.jolbox"                    % "bonecp"          % "0.8.0.RELEASE" exclude("com.google.guava", "guava"),
