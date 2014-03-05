@@ -1,8 +1,10 @@
+/*
+ * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
+ */
 package play.api
 
-import scala.annotation.implicitNotFound
-import scala.reflect.ClassTag
-import java.io.File
+import annotation.implicitNotFound
+import reflect.ClassTag
 
 /**
  * @author giabao
@@ -10,7 +12,6 @@ import java.io.File
  * Copyright(c) 2011-2013 sandinh.
  *
  * This is a simplified version of the original Play
- * @todo add an implement for this trait
  */
 @implicitNotFound(msg = "You do not have an implicit Application in scope. If you want to bring the current running Application into context, just add import play.api.Play.current")
 trait Application {

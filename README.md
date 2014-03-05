@@ -13,6 +13,20 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 ### Changelogs
 Note: `_2.2` in version number is the compatible version of (original) Play
 
+##### v2.0.2_2.2
++ sync code with [play 2.2.2](https://github.com/playframework/playframework/tree/2.2.2)
+(I use [Beyond Compare](http://www.scootersoftware.com/download.php) to compare & sync playframework/framework/src with play-jdbc-standalone
+
++ I also update com.typesafe:config from v1.0.2 to 1.2.0 which is binary compatible.
+@see https://github.com/typesafehub/config/blob/master/NEWS.md
+
++ NOTE play 2.2.2 [use guava 14.0.1](http://repo.typesafe.com/typesafe/releases/com/typesafe/play/play-jdbc_2.10/2.2.2/play-jdbc_2.10-2.2.2.pom)
+but we already use guava 15.0 in production with both play 2.2.1 & play-jdbc-standalone 2.0.1_2.2 :( with no error be found until now,
+and [play master branch](https://github.com/playframework/playframework/blob/master/framework/project/Dependencies.scala) also use 16.0.1
+@see http://code.google.com/p/guava-libraries/wiki/ReleaseHistory
+so we update guava in play-jdbc-standalone.
+You - as an user of play-jdbc-standalone - can downgrade guava to 14.0.1 as in play 2.2.2
+
 ##### v2.0.1_2.2
 Update bonecp 0.8.0.RELEASE
 

@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
+ */
 package play.api
 
 import play.utils.Threads
@@ -25,12 +28,11 @@ object Mode extends Enumeration {
  * }}}
  */
 object Play {
-  /*
- * A general purpose logger for Play. Intended for internal usage.
- */
-  private[play] val logger = Logger("play")
 
-  private[play] var _currentApp: Application = _
+  /*
+   * A general purpose logger for Play. Intended for internal usage.
+   */
+  private[play] val logger = Logger("play")
 
   /**
    * Optionally returns the current running application.
@@ -45,12 +47,15 @@ object Play {
    */
   implicit def current: Application = maybeApplication.getOrElse(sys.error("There is no started application"))
 
+  private[play] var _currentApp: Application = _
+
   /**
    * Starts this application.
    *
    * @param app the application to start
    */
-  def start(app: Application){
+  def start(app: Application) {
+
     // First stop previous app if exists
     stop()
 
@@ -66,6 +71,7 @@ object Play {
       case Mode.Test =>
       case mode => logger.info("Application started (" + mode + ")")
     }
+
   }
 
   /**

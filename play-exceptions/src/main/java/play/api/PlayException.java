@@ -1,6 +1,8 @@
+/*
+ * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
+ */
 package play.api;
 
-import java.io.*;
 import java.util.*;
 
 import java.util.concurrent.atomic.AtomicLong;

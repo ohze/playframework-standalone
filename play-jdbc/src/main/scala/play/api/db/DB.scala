@@ -14,8 +14,6 @@ import scala.util.control.{ NonFatal, ControlThrowable }
 
 /**
  * The Play Database API manages several connection pools.
- *
- * val datasources the managed data sources
  */
 trait DBApi {
 
@@ -198,6 +196,7 @@ trait DBPlugin extends Plugin {
  * @param app the application that is registering the plugin
  */
 class BoneCPPlugin(app: Application) extends DBPlugin {
+
   lazy val dbConfig = app.configuration.getConfig("db").getOrElse(Configuration.empty)
 
   private def dbURL(conn: Connection): String = {
@@ -223,7 +222,7 @@ class BoneCPPlugin(app: Application) extends DBPlugin {
    * dbplugin=disabled
    * }}}
    */
-  override def enabled = ! isDisabled
+  override def enabled = !isDisabled
 
   /**
    * Retrieves the underlying `DBApi` managing the data sources.
@@ -243,9 +242,8 @@ class BoneCPPlugin(app: Application) extends DBPlugin {
           case mode => Play.logger.info("database [" + ds._2 + "] connected at " + dbURL(ds._1.getConnection))
         }
       } catch {
-        case NonFatal(e) => {
+        case NonFatal(e) =>
           throw dbConfig.reportError(ds._2 + ".url", "Cannot connect to database [" + ds._2 + "]", Some(e.getCause))
-        }
       }
     }
   }
@@ -272,7 +270,7 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
 
   private def error(db: String, message: String = "") = throw configuration.reportError(db, message)
 
-  private val dbNames = configuration.subKeys
+  private val dbNames: Set[String] = configuration.subKeys
 
   private def register(driver: String, c: Configuration) {
     try {
@@ -299,8 +297,8 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
     val isolation = conf.getString("isolation").map {
       case "NONE" => Connection.TRANSACTION_NONE
       case "READ_COMMITTED" => Connection.TRANSACTION_READ_COMMITTED
-      case "READ_UNCOMMITTED " => Connection.TRANSACTION_READ_UNCOMMITTED
-      case "REPEATABLE_READ " => Connection.TRANSACTION_REPEATABLE_READ
+      case "READ_UNCOMMITTED" => Connection.TRANSACTION_READ_UNCOMMITTED
+      case "REPEATABLE_READ" => Connection.TRANSACTION_REPEATABLE_READ
       case "SERIALIZABLE" => Connection.TRANSACTION_SERIALIZABLE
       case unknown => throw conf.reportError("isolation", "Unknown isolation level [" + unknown + "]")
     }
@@ -316,7 +314,7 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
 
       override def onCheckIn(connection: ConnectionHandle) {
         if (logger.isTraceEnabled) {
-          logger.trace("Check in connection [%s leased]".format(datasource.getTotalLeased))
+          logger.trace("Check in connection %s [%s leased]".format(connection.toString, datasource.getTotalLeased))
         }
       }
 
@@ -326,8 +324,14 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
         connection.setReadOnly(readOnly)
         catalog.map(connection.setCatalog)
         if (logger.isTraceEnabled) {
-          logger.trace("Check out connection [%s leased]".format(datasource.getTotalLeased))
+          logger.trace("Check out connection %s [%s leased]".format(connection.toString, datasource.getTotalLeased))
         }
+      }
+
+      override def onQueryExecuteTimeLimitExceeded(handle: ConnectionHandle, statement: Statement, sql: String, logParams: java.util.Map[AnyRef, AnyRef], timeElapsedInNs: Long) {
+        val timeMs = timeElapsedInNs / 1000
+        val query = PoolUtil.fillLogParams(sql, logParams)
+        logger.warn(s"Query execute time limit exceeded (${timeMs}ms) - query: $query")
       }
 
     })
@@ -377,10 +381,8 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
     datasource.setDisableJMX(conf.getBoolean("disableJMX").getOrElse(true))
     datasource.setStatisticsEnabled(conf.getBoolean("statisticsEnabled").getOrElse(false))
     datasource.setIdleConnectionTestPeriod(conf.getMilliseconds("idleConnectionTestPeriod").getOrElse(1000 * 60), java.util.concurrent.TimeUnit.MILLISECONDS)
-    // Release helper threads has caused users issues, and the feature has been removed altogether from BoneCP 0.8.0
-    // (which is yet to be released) because it offered no real performance advantage.  Once we upgrade to BoneCP 0.8.x,
-    // we can remove this line.  https://play.lighthouseapp.com/projects/82401/tickets/754-cannot-set-important-bonecp-parameter-in-configuration
-    //datasource.setReleaseHelperThreads(0)
+    datasource.setDisableConnectionTracking(conf.getBoolean("disableConnectionTracking").getOrElse(true))
+    datasource.setQueryExecuteTimeLimitInMs(conf.getMilliseconds("queryExecuteTimeLimit").getOrElse(0))
 
     conf.getString("initSQL").map(datasource.setInitSQL)
     conf.getBoolean("logStatements").map(datasource.setLogStatementsEnabled)
@@ -396,13 +398,13 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
 
   }
 
-  val datasources: List[(DataSource, String)] = dbNames.map { dbName =>
+  val datasources: List[(DataSource, String)] = dbNames.toList.map { dbName =>
     val url = configuration.getString(dbName + ".url").getOrElse(error(dbName, "Missing configuration [db." + dbName + ".url]"))
     val driver = configuration.getString(dbName + ".driver").getOrElse(error(dbName, "Missing configuration [db." + dbName + ".driver]"))
     val extraConfig = configuration.getConfig(dbName).getOrElse(error(dbName, "Missing configuration [db." + dbName + "]"))
     register(driver, extraConfig)
     createDataSource(dbName, url, driver, extraConfig) -> dbName
-  }.toList
+  }
 
   def shutdownPool(ds: DataSource) = {
     ds match {
@@ -427,7 +429,7 @@ private[db] class BoneCPApi(configuration: Configuration, classloader: ClassLoad
 }
 
 /**
- * Provides an interface for retreiving the jdbc driver's implementation of java.sql.Connection
+ * Provides an interface for retrieving the jdbc driver's implementation of java.sql.Connection
  * from a "decorated" Connection (such as the Connection that DB.withConnection provides). Upcasting
  * to this trait should be used with caution since exposing the internal jdbc connection can violate the
  * guarantees Play otherwise makes (like automatically closing jdbc statements created from the connection)

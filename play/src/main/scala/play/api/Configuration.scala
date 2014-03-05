@@ -1,10 +1,12 @@
+/*
+ * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
+ */
 package play.api
 
-import com.typesafe.config._
-import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
 import java.io.File
-import scala.Some
+import com.typesafe.config._
+import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
 
 /**
  * @author giabao
@@ -13,11 +15,11 @@ import scala.Some
  *
  * This is a simplified version of the original Play
  */
-object Configuration{
+object Configuration {
+
   private[this] lazy val dontAllowMissingConfigOptions = ConfigParseOptions.defaults().setAllowMissing(false)
 
   private[this] lazy val dontAllowMissingConfig = ConfigFactory.load(dontAllowMissingConfigOptions)
-
   /**
    * loads `Configuration` from config.resource or config.file. If not found default to 'conf/application.conf' in Dev mode
    * @return  configuration to be used
@@ -55,7 +57,6 @@ object Configuration{
       if (currentMode == Mode.Prod) Configuration(dontAllowMissingConfig) else Configuration(loadDev(appPath, devSettings))
     } catch {
       case e: ConfigException => throw configError(e.origin, e.getMessage, Some(e))
-      case e: Throwable => throw e
     }
   }
 
@@ -84,34 +85,6 @@ object Configuration{
  * @param underlying the underlying Config implementation
  */
 case class Configuration(underlying: Config) {
-  /**
-   * Returns sub-keys.
-   *
-   * For example:
-   * {{{
-   * val configuration = Configuration.load()
-   * val subKeys = configuration.subKeys
-   * }}}
-   * @return the set of direct sub-keys available in this configuration
-   */
-  def subKeys: Set[String] = underlying.root().keySet().asScala.toSet
-
-  /**
-   * Retrieves a sub-configuration, i.e. a configuration instance containing all keys starting with a given prefix.
-   *
-   * For example:
-   * {{{
-   * val configuration = Configuration.load()
-   * val engineConfig = configuration.getSub("engine")
-   * }}}
-   *
-   * The root key of this new configuration will be ‘engine’, and you can access any sub-keys relatively.
-   *
-   * @param path the root prefix for this sub-configuration
-   * @return a new configuration
-   */
-  def getConfig(path: String): Option[Configuration] = readValue(path, underlying.getConfig(path)).map(Configuration(_))
-
   /**
    * Read a value from the underlying implementation,
    * catching Errors and wrapping it in an Option value.
@@ -200,6 +173,34 @@ case class Configuration(underlying: Config) {
   def getMilliseconds(path: String): Option[Long] = readValue(path, underlying.getMilliseconds(path))
 
   /**
+   * Retrieves a sub-configuration, i.e. a configuration instance containing all keys starting with a given prefix.
+   *
+   * For example:
+   * {{{
+   * val configuration = Configuration.load()
+   * val engineConfig = configuration.getConfig("engine")
+   * }}}
+   *
+   * The root key of this new configuration will be ‘engine’, and you can access any sub-keys relatively.
+   *
+   * @param path the root prefix for this sub-configuration
+   * @return a new configuration
+   */
+  def getConfig(path: String): Option[Configuration] = readValue(path, underlying.getConfig(path)).map(Configuration(_))
+
+  /**
+   * Returns sub-keys.
+   *
+   * For example:
+   * {{{
+   * val configuration = Configuration.load()
+   * val subKeys = configuration.subKeys
+   * }}}
+   * @return the set of direct sub-keys available in this configuration
+   */
+  def subKeys: Set[String] = underlying.root().keySet().asScala.toSet
+
+  /**
    * Creates a configuration error for a specific configuration key.
    *
    * For example:
@@ -230,7 +231,8 @@ case class Configuration(underlying: Config) {
    * @param e the related exception
    * @return a configuration exception
    */
-  def globalError(message: String, e: Option[Throwable] = None) = {
+  def globalError(message: String, e: Option[Throwable] = None): PlayException = {
     Configuration.configError(underlying.root.origin, message, e)
   }
+
 }
