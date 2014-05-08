@@ -47,7 +47,7 @@ object Play {
    */
   implicit def current: Application = maybeApplication.getOrElse(sys.error("There is no started application"))
 
-  private[play] var _currentApp: Application = _
+  @volatile private[play] var _currentApp: Application = _
 
   /**
    * Starts this application.

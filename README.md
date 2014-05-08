@@ -1,17 +1,26 @@
 play-jdbc-standalone
 ====================
 ### What?
-This library enable us to use [play-jdbc from playframework 2.2](https://github.com/playframework/playframework/blob/2.2.x/framework/src/play-jdbc/src/main/scala/play/api/db/DB.scala) without play itself.
+This library enable us to use [play-jdbc from playframework 2.2+](https://github.com/playframework/playframework/blob/2.3.x/framework/src/play-jdbc/src/main/scala/play/api/db/DB.scala) without play itself.
 
 ### Why?
-+ Your code & config (that use play-jdbc-standalone) will exactly same as if you [use play](http://www.playframework.com/documentation/2.2.x/ScalaDatabase)
-+ So, you can use [anorm](http://www.playframework.com/documentation/2.2.x/ScalaAnorm) or [other database libraries](http://www.playframework.com/documentation/2.2.x/ScalaDatabaseOthers) (exactly) as in a full play app.
++ Your code & config (that use play-jdbc-standalone) will exactly same as if you [use play](http://www.playframework.com/documentation/2.3.x/ScalaDatabase)
++ So, you can use [anorm](http://www.playframework.com/documentation/2.3.x/ScalaAnorm) or [other database libraries](http://www.playframework.com/documentation/2.3.x/ScalaDatabaseOthers) (exactly) as in a full play app.
 
 ### How?
 see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/src/test/scala/play/api/DBSpec.scala)
 
 ### Changelogs
 Note: `_2.2` in version number is the compatible version of (original) Play
+
+##### v2.0.3
++ sync code with play 2.3.0-RC1.
+ As a result, play-jdbc-standalone now do NOT depend on scala-io-core
++ this version is binary compatible with v2.0.2_2.2.
+ So, it is compatible with both play 2.2 & play 2.3.
+ So, I remove `_2.2` from version number.
++ cross compile to scala 2.10 & 2.11
++ use [sbt-sonatype](https://github.com/xerial/sbt-sonatype)
 
 ##### v2.0.2_2.2
 + sync code with [play 2.2.2](https://github.com/playframework/playframework/tree/2.2.2)

@@ -39,7 +39,7 @@ class DBSpec extends Specification{
 
       val parser = int("id") ~ str("msg") map flatten
       DB.withConnection{implicit c =>
-        val l = SQL(sqlSelect).list(parser)
+        val l = SQL(sqlSelect).as(parser.*)
         l must have size 2
         l(0)._2 === "value2"
       }

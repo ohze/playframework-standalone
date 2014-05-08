@@ -7,6 +7,8 @@ import java.io.File
 import com.typesafe.config._
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
+import play.utils.PlayIO
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
 /**
  * @author giabao
@@ -28,10 +30,10 @@ object Configuration {
     try {
       lazy val file = {
         devSettings.get("config.file").orElse(Option(System.getProperty("config.file")))
-          .map(f => new File(f)).getOrElse(new File(appPath, "conf/application.conf"))
+          .fold(new File(appPath, "conf/application.conf"))(new File(_))
       }
       val config = Option(System.getProperty("config.resource"))
-        .map(ConfigFactory.parseResources).getOrElse(ConfigFactory.parseFileAnySyntax(file))
+        .fold(ConfigFactory.parseFileAnySyntax(file))(ConfigFactory.parseResources)
 
       ConfigFactory.parseMap(devSettings.asJava).withFallback(ConfigFactory.load(config))
     } catch {
@@ -53,7 +55,7 @@ object Configuration {
    */
   def load(appPath: File, mode: Mode.Mode = Mode.Dev, devSettings: Map[String, String] = Map.empty) = {
     try {
-      val currentMode = Play.maybeApplication.map(_.mode).getOrElse(mode)
+      val currentMode = Play.maybeApplication.fold(mode)(_.mode)
       if (currentMode == Mode.Prod) Configuration(dontAllowMissingConfig) else Configuration(loadDev(appPath, devSettings))
     } catch {
       case e: ConfigException => throw configError(e.origin, e.getMessage, Some(e))
@@ -66,11 +68,10 @@ object Configuration {
   val empty = Configuration(ConfigFactory.empty)
 
   private def configError(origin: ConfigOrigin, message: String, e: Option[Throwable] = None): PlayException = {
-    import scalax.io.JavaConverters._
     new PlayException.ExceptionSource("Configuration error", message, e.orNull) {
       def line = Option(origin.lineNumber: java.lang.Integer).orNull
       def position = null
-      def input = Option(origin.url).map(_.asInput.string).orNull
+      def input = Option(origin.url).map(PlayIO.readUrlAsString).orNull
       def sourceName = Option(origin.filename).orNull
       override def toString = "Configuration error: " + getMessage
     }
@@ -170,7 +171,7 @@ case class Configuration(underlying: Config) {
    * engine.timeout = 1 second
    * }}}
    */
-  def getMilliseconds(path: String): Option[Long] = readValue(path, underlying.getMilliseconds(path))
+  def getMilliseconds(path: String): Option[Long] = readValue(path, underlying.getDuration(path, MILLISECONDS))
 
   /**
    * Retrieves a sub-configuration, i.e. a configuration instance containing all keys starting with a given prefix.
