@@ -13,6 +13,10 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 ### Changelogs
 Note: `_2.2` in version number is the compatible version of (original) Play
 
+##### v2.0.4
++ sync code with play 2.3.0-RC2.
++ update scala 2.11.1
+
 ##### v2.0.3
 + sync code with play 2.3.0-RC1.
  As a result, play-jdbc-standalone now do NOT depend on scala-io-core

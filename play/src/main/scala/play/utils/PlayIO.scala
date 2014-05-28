@@ -17,23 +17,32 @@ private[play] object PlayIO {
   /**
    * Read the given stream into a byte array.
    *
-   * Does not close the stream.
+   * Closes the stream.
    */
-  def readStream(stream: InputStream): Array[Byte] = {
-    val buffer = new Array[Byte](8192)
-    var len = stream.read(buffer)
-    val out = new ByteArrayOutputStream()
-    while (len != -1) {
-      out.write(buffer, 0, len)
-      len = stream.read(buffer)
-    }
-    out.toByteArray
+  private def readStream(stream: InputStream): Array[Byte] = {
+    try {
+      val buffer = new Array[Byte](8192)
+      var len = stream.read(buffer)
+      val out = new ByteArrayOutputStream() // Doesn't need closing
+      while (len != -1) {
+        out.write(buffer, 0, len)
+        len = stream.read(buffer)
+      }
+      out.toByteArray
+    } finally closeQuietly(stream)
+  }
+
+  /**
+   * Read the file into a byte array.
+   */
+  def readFile(file: File): Array[Byte] = {
+    readStream(new FileInputStream(file))
   }
 
   /**
    * Read the given stream into a String.
    *
-   * Does not close the stream.
+   * Closes the stream.
    */
   def readStreamAsString(stream: InputStream)(implicit codec: Codec): String = {
     new String(readStream(stream), codec.name)
@@ -43,12 +52,14 @@ private[play] object PlayIO {
    * Read the URL as a String.
    */
   def readUrlAsString(url: URL)(implicit codec: Codec): String = {
-    val is = url.openStream()
-    try {
-      readStreamAsString(is)
-    } finally {
-      closeQuietly(is)
-    }
+    readStreamAsString(url.openStream())
+  }
+
+  /**
+   * Read the file as a String.
+   */
+  def readFileAsString(file: File)(implicit codec: Codec): String = {
+    readStreamAsString(new FileInputStream(file))
   }
 
   /**
