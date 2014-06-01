@@ -23,9 +23,9 @@ parallelExecution in Test := false
 resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
 
 libraryDependencies ++= Seq(
-    "org.specs2"                    %% "specs2"         % "2.3.12"     % "test",
-    "com.h2database"                %  "h2"             % "1.3.176"    % "test",
-    "com.typesafe.play"             %% "anorm"          % "2.3.0-RC2"  % "test",
+    "org.specs2"                    %% "specs2"         % "2.3.12"      % "test",
+    "com.h2database"                %  "h2"             % "1.3.176"     % "test",
+    "com.typesafe.play"             %% "anorm"          % "2.3.0"       % "test",
     "com.typesafe"                  % "config"          % "1.2.1",
     "com.jolbox"                    % "bonecp"          % "0.8.0.RELEASE" exclude("com.google.guava", "guava"),
     "com.google.guava"              % "guava"           % "16.0.1",
