@@ -2,11 +2,11 @@ organization := "com.sandinh"
 
 name := "play-jdbc-standalone"
 
-version := "2.0.4"
+version := "2.0.5"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
-crossScalaVersions := Seq("2.11.1", "2.10.4")
+crossScalaVersions := Seq("2.11.2", "2.10.4")
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", "-Yinline-warnings"/*, "-optimise"*/)
 
@@ -23,9 +23,9 @@ parallelExecution in Test := false
 resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
 
 libraryDependencies ++= Seq(
-    "org.specs2"                    %% "specs2"         % "2.3.12"      % "test",
+    "org.specs2"                    %% "specs2"         % "2.4"         % "test",
     "com.h2database"                %  "h2"             % "1.3.176"     % "test",
-    "com.typesafe.play"             %% "anorm"          % "2.3.0"       % "test",
+    "com.typesafe.play"             %% "anorm"          % "2.3.2"       % "test",
     "com.typesafe"                  % "config"          % "1.2.1",
     "com.jolbox"                    % "bonecp"          % "0.8.0.RELEASE" exclude("com.google.guava", "guava"),
     "com.google.guava"              % "guava"           % "16.0.1",

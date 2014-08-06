@@ -13,6 +13,10 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 ### Changelogs
 Note: `_2.2` in version number is the compatible version of (original) Play
 
+##### v2.0.5
++ review code with play 2.3.2
++ update scala 2.11.2
+
 ##### v2.0.4
 + sync code with play 2.3.0-RC2.
 + update scala 2.11.1
