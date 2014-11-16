@@ -14,13 +14,16 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 Note: `_2.2` in version number (from <= v2.0.2_2.2) is the compatible version of (original) Play
 
 ##### v2.1.0
-v2.1.0:
-1. use HikariCP instead of BoneCP, remove AutoCleanConnection.
- see: https://github.com/playframework/playframework/issues/2445#issuecomment-37495865
-2. add class play.api.Logger (in previous version, this type is just an alias to org.slf4j.Logger).
+
+1. use [HikariCP](https://github.com/brettwooldridge/HikariCP) instead of BoneCP (BoneCP author himself has [said](https://github.com/wwadge/bonecp) the library is deprecated, use Hikari),
+
+2. remove AutoCleanConnection. see: https://github.com/playframework/playframework/issues/2445#issuecomment-37495865
+
+3. add class play.api.Logger (in previous version, this type is just an alias to org.slf4j.Logger).
  object play.api.Logger is now also an LoggerLike as in the full play version - so, we can use it directly as: Logger.info(..)
-3. play-jdbc config now require configs for `user` & `password` even if
-you use a driver previously do NOT need those configs - ex when use h2 driver.
+
+4. play-jdbc config now require configs for `user` & `password` even if
+you use a driver previously do NOT need those configs - ex when use h2 driver. see [diff](https://github.com/giabao/play-jdbc-standalone/commit/567674680ba6adb939d780542f61420643a98d28#diff-240affed5ecb8cbeca8d5ce26e5a15d3) of src/test/resources/conf/application.conf
 
 ##### v2.0.5
 + review code with play 2.3.2
