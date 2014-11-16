@@ -190,6 +190,22 @@ case class Configuration(underlying: Config) {
   def getConfig(path: String): Option[Configuration] = readValue(path, underlying.getConfig(path)).map(Configuration(_))
 
   /**
+   * Retrieves a configuration value as a `Long`.
+   *
+   * For example:
+   * {{{
+   * val configuration = Configuration.load()
+   * val duration = configuration.getLong("timeout.duration")
+   * }}}
+   *
+   * A configuration error will be thrown if the configuration value is not a valid `Long`.
+   *
+   * @param path the configuration key, relative to the configuration root key
+   * @return a configuration value
+   */
+  def getLong(path: String): Option[Long] = readValue(path, underlying.getLong(path))
+
+  /**
    * Returns sub-keys.
    *
    * For example:

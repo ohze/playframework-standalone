@@ -1,7 +1,7 @@
 package play.api
 
 import org.specs2.mutable.Specification
-import play.api.db.BoneCPPlugin
+import com.edulify.play.hikaricp.HikariCPPlugin
 
 /**
  * @author giabao
@@ -19,7 +19,7 @@ class PlaySpec extends Specification{
     "can load DBPlugin" in {
       val app = new SimpleApplication(Mode.Test)
       Play.start(app)
-      Play.current.plugins must contain(beAnInstanceOf[BoneCPPlugin])
+      Play.current.plugins must contain(beAnInstanceOf[HikariCPPlugin])
     }
   }
 }

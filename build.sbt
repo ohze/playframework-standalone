@@ -2,7 +2,7 @@ organization := "com.sandinh"
 
 name := "play-jdbc-standalone"
 
-version := "2.0.5"
+version := "2.1.0"
 
 scalaVersion := "2.11.4"
 
@@ -31,23 +31,23 @@ lazy val root = (project in file(".")) disablePlugins plugins.JUnitXmlReportPlug
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
-unmanagedSourceDirectories in Compile <+= baseDirectory{ _ / "play" / "src" / "main" / "scala"}
-
-unmanagedSourceDirectories in Compile <+= baseDirectory{ _ / "play-jdbc" / "src" / "main" / "scala"}
-
-unmanagedSourceDirectories in Compile <+= baseDirectory{ _ / "play-exceptions" / "src" / "main" / "java"}
+unmanagedSourceDirectories in Compile <++= baseDirectory { base => Seq(
+    base / "play" / "src" / "main" / "scala",
+    base / "play-jdbc" / "src" / "main" / "scala",
+    base / "play-exceptions" / "src" / "main" / "java",
+    base / "play-hikaricp" / "module-code" / "app"
+)}
 
 parallelExecution in Test := false
 
 resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases"
 
 libraryDependencies ++= Seq(
+    "tyrex"                         % "tyrex"           % "1.0.1",
+    "com.zaxxer"                    % "HikariCP-java6"  % "2.2.5",
+    "com.typesafe"                  % "config"          % "1.2.1",
+    "org.slf4j"                     % "slf4j-api"       % "1.7.7",
     "org.specs2"                    %% "specs2"         % "2.4.11"      % "test",
     "com.h2database"                %  "h2"             % "1.4.182"     % "test",
-    "com.typesafe.play"             %% "anorm"          % "2.3.6"       % "test",
-    "com.typesafe"                  % "config"          % "1.2.1",
-    "com.jolbox"                    % "bonecp"          % "0.8.0.RELEASE" exclude("com.google.guava", "guava"),
-    "com.google.guava"              % "guava"           % "16.0.1",
-    //"com.google.code.findbugs"    % "jsr305"          % "2.0.3" // Needed by guava
-    "tyrex"                         % "tyrex"           % "1.0.1"
+    "com.typesafe.play"             %% "anorm"          % "2.3.6"       % "test"
 )

@@ -1,7 +1,7 @@
 package play.api
 
 import java.io.File
-import play.api.db.BoneCPPlugin
+import com.edulify.play.hikaricp.HikariCPPlugin
 import play.utils.Threads
 import com.typesafe.config.Config
 
@@ -12,7 +12,7 @@ import com.typesafe.config.Config
  *
  * @param devConfFile Path to application.conf file. This param is only used if mode != Prod.
  */
-class SimpleApplication(devConfFile: File, val mode: Mode.Mode, cfg: Config) extends Application{
+class SimpleApplication(devConfFile: File, val mode: Mode.Mode, cfg: Config) extends Application {
   /** Configuration will be load using play.api.Configuration#dontAllowMissingConfig() */
   def this(mode: Mode.Mode) = this(null, mode, null)
 
@@ -26,7 +26,7 @@ class SimpleApplication(devConfFile: File, val mode: Mode.Mode, cfg: Config) ext
 
   def classloader = this.getClass.getClassLoader
 
-  lazy val plugins = Seq(new BoneCPPlugin(this))
+  lazy val plugins = Seq(new HikariCPPlugin(this))
 
   lazy val configuration = Threads.withContextClassLoader(classloader){
     if(cfg != null) Configuration(cfg)
