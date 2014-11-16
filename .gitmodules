@@ -1,3 +1,3 @@
 [submodule "play-hikaricp"]
 	path = play-hikaricp
-	url = git@github.com:giabao/play-hikaricp.git
+	url = https://github.com/giabao/play-hikaricp.git
