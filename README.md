@@ -13,6 +13,10 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 ### Changelogs
 Note: `_2.2` in version number (from <= v2.0.2_2.2) is the compatible version of (original) Play
 
+##### v2.1.1
+
+update play-hikaricp 1.7.1
+
 ##### v2.1.0
 
 1. use [HikariCP](https://github.com/brettwooldridge/HikariCP) instead of BoneCP (BoneCP author himself has [said](https://github.com/wwadge/bonecp) the library is deprecated, use Hikari),
