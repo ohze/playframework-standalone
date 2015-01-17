@@ -13,6 +13,9 @@ see [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/sr
 ### Changelogs
 Note: `_2.2` in version number (from <= v2.0.2_2.2) is the compatible version of (original) Play
 
+##### v2.1.2
+update slf4j-api 1.7.10, scala 2.11.5, play-hikaricp 1.7.2
+
 ##### v2.1.1
 
 update play-hikaricp 1.7.1

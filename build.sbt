@@ -2,11 +2,11 @@ organization := "com.sandinh"
 
 name := "play-jdbc-standalone"
 
-version := "2.1.1"
+version := "2.1.2"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.5"
 
-crossScalaVersions := Seq("2.11.4", "2.10.4")
+crossScalaVersions := Seq("2.11.5", "2.10.4")
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-target:jvm-1.7", "-deprecation", "-unchecked", "-feature", "-Yinline-warnings"/*, "-optimise"*/)
 
@@ -27,7 +27,7 @@ javacOptions ++= {
 }
 
 //@see https://github.com/etorreborre/specs2/issues/283
-lazy val root = (project in file(".")) disablePlugins plugins.JUnitXmlReportPlugin
+disablePlugins(plugins.JUnitXmlReportPlugin)
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
@@ -46,8 +46,8 @@ libraryDependencies ++= Seq(
     "tyrex"                         % "tyrex"           % "1.0.1",
     "com.zaxxer"                    % "HikariCP-java6"  % "2.2.5",
     "com.typesafe"                  % "config"          % "1.2.1",
-    "org.slf4j"                     % "slf4j-api"       % "1.7.7",
-    "org.specs2"                    %% "specs2"         % "2.4.11"      % "test",
-    "com.h2database"                %  "h2"             % "1.4.182"     % "test",
-    "com.typesafe.play"             %% "anorm"          % "2.3.6"       % "test"
+    "org.slf4j"                     % "slf4j-api"       % "1.7.10",
+    "org.specs2"                    %% "specs2"         % "2.4.15"      % "test",
+    "com.h2database"                %  "h2"             % "1.4.184"     % "test",
+    "com.typesafe.play"             %% "anorm"          % "2.3.7"       % "test"
 )
