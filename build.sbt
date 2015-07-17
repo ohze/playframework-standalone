@@ -52,6 +52,7 @@ lazy val root = project.in(file("."))
     .settings(commonSettings: _*)
     .settings(
         name := "play-alone-test",
+        publishArtifact := false,
         libraryDependencies ++= Seq(
             "org.specs2"          %% "specs2-junit" % "3.6.2"   % Test,
             "com.h2database"      %  "h2"           % "1.4.187" % Test,
