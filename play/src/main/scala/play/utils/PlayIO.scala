@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2009-2014 Typesafe Inc. <http://www.typesafe.com>
+ * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
  */
 package play.utils
 
 import java.io._
 import scala.io.Codec
 import java.net.URL
+import play.api.Logger
 
 /**
  * IO utilites for internal use by Play projects.
@@ -13,6 +14,8 @@ import java.net.URL
  * This is intentionally not public API.
  */
 private[play] object PlayIO {
+
+  private val logger = Logger(this.getClass)
 
   /**
    * Read the given stream into a byte array.
@@ -73,7 +76,7 @@ private[play] object PlayIO {
         closeable.close()
       }
     } catch {
-      case e: IOException => play.api.Play.logger.warn("Error closing stream", e)
+      case e: IOException => logger.warn("Error closing stream", e)
     }
   }
 }

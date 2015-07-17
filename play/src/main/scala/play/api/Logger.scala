@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
+ * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
  */
 package play.api
 
@@ -150,15 +150,12 @@ trait LoggerLike {
 class Logger(val logger: Slf4jLogger) extends LoggerLike
 
 /**
- * @author giabao
- * created: 2013-10-17 10:20
- * (c) 2011-2013 sandinh.com
+ * updated by giabao <giabao@sandinh.net>
  *
- * This is a simplified version of the original Play
- *
- * Incompatible change in play-jdbc-standalone 2.x:
- * + The following members in object play.api.Logger is now removed: init, configure, shutdown, ColoredLevel.
- *   If you don't use those members in your code, then ver 2.x is source-compatible with 1.x
+ * This is a simplified version of the original Play with incompatible changes:
+ * + The following members in object play.api.Logger is removed: init, configure, shutdown, ColoredLevel.
+ *   If you don't use those members in your code, then this simplified Logger is compatible with full play's one.
+ *   (else then there will be an compile error)
  */
 object Logger extends LoggerLike {
 
@@ -181,5 +178,5 @@ object Logger extends LoggerLike {
    * @param clazz a class whose name will be used as logger name
    * @return a logger
    */
-  def apply[T](clazz: Class[T]): Logger = new Logger(LoggerFactory.getLogger(clazz))
+  def apply[T](clazz: Class[T]): Logger = new Logger(LoggerFactory.getLogger(clazz.getName.stripSuffix("$")))
 }

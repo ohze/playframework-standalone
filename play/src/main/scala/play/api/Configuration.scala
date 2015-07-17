@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
+ * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
  */
 package play.api
 
@@ -11,11 +11,18 @@ import play.utils.PlayIO
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 /**
- * @author giabao
- * created: 2013-10-05 11:03
- * Copyright(c) 2011-2013 sandinh.com
+ * update by giabao <giabao@sandinh.net>
  *
- * This is a simplified version of the original Play
+ * This is a simplified version of the original Play's Configuration
+ * This object provides a set of operations to create `Configuration` values.
+ *
+ * For example, to load a `Configuration` in a running application:
+ * {{{
+ * val config = Configuration.load()
+ * val foo = config.getString("foo").getOrElse("boo")
+ * }}}
+ *
+ * The underlying implementation is provided by https://github.com/typesafehub/config.
  */
 object Configuration {
 
