@@ -1,5 +1,7 @@
 play-jdbc-standalone
 ====================
+[![Build Status](https://travis-ci.org/giabao/play-jdbc-standalone.svg)](https://travis-ci.org/giabao/play-jdbc-standalone)
+
 ### What?
 This library enable us to use [play-jdbc from playframework 2.4.x](https://github.com/playframework/playframework/blob/2.4.x/framework/src/play-jdbc/src/main/scala/play/api/db/DB.scala) without play itself.
 
