@@ -7,6 +7,8 @@ lazy val commonSettings = Seq(
     scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", "-Yinline-warnings"/*, "-optimise"*/),
     javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
 
+    resolvers += Resolver.bintrayRepo("scalaz", "releases"),
+
     //misc - to mute intellij warning when load sbt project
     dependencyOverrides ++= Set(
         "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4", // % Optional
