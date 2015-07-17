@@ -1,7 +1,8 @@
 package play.api
 
+import com.sandinh.PlayAlone
 import org.specs2.mutable.Specification
-import com.edulify.play.hikaricp.HikariCPPlugin
+import play.api.db.{HikariCPConnectionPool, ConnectionPool}
 
 /**
  * @author giabao
@@ -9,17 +10,15 @@ import com.edulify.play.hikaricp.HikariCPPlugin
  * Copyright(c) 2011-2013 sandinh.com
  */
 class PlaySpec extends Specification{
-  "Play" should {
-    "can start with SimpleApplication" in {
-      val app = new SimpleApplication(Mode.Test)
-      Play.start(app)
+  "Play standalone" should {
+    "can start with Application.simple" in {
+      PlayAlone.start()
       Play.maybeApplication must beSome[Application]
     }
 
-    "can load DBPlugin" in {
-      val app = new SimpleApplication(Mode.Test)
-      Play.start(app)
-      Play.current.plugins must contain(beAnInstanceOf[HikariCPPlugin])
+    "can load HikariCPModule" in {
+      PlayAlone.start()
+      Play.current.injector.instanceOf[ConnectionPool] must beAnInstanceOf[HikariCPConnectionPool]
     }
   }
 }

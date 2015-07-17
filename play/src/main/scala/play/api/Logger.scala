@@ -150,12 +150,20 @@ trait LoggerLike {
 class Logger(val logger: Slf4jLogger) extends LoggerLike
 
 /**
- * updated by giabao <giabao@sandinh.net>
+ * @see compare-to-play.md
  *
- * This is a simplified version of the original Play with incompatible changes:
- * + The following members in object play.api.Logger is removed: init, configure, shutdown, ColoredLevel.
- *   If you don't use those members in your code, then this simplified Logger is compatible with full play's one.
- *   (else then there will be an compile error)
+ * High-level API for logging operations.
+ *
+ * For example, logging with the default application logger:
+ * {{{
+ * Logger.info("Hello!")
+ * }}}
+ *
+ * Logging with a custom logger:
+ * {{{
+ * Logger("my.logger").info("Hello!")
+ * }}}
+ *
  */
 object Logger extends LoggerLike {
 

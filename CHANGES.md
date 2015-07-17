@@ -1,5 +1,18 @@
 ### Changelogs
 
+##### v2.4.2
++ update play 2.4.2 (require java 8)
++ update scala 2.11.7 & not cross compile to scala 2.10.x
++ RENAME & split `play-jdbc-standalone` to 2 libraries `play-alone` & `play-jdbc-alone`.
+  You can use the plain `play-jdbc` library with `play-alone`:
+```
+libraryDependencies ++= Seq(
+  "com.sandinh"       %% "play-alone" % "2.4.2",
+  "com.typesafe.play" %% "play-jdbc"  % "2.4.2"
+    exclude("com.typesafe.play", "play_" + scalaBinaryVersion.value)
+)
+```
+
 ##### v2.1.2
 update slf4j-api 1.7.10, scala 2.11.5, play-hikaricp 1.7.2
 

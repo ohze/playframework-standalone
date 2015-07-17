@@ -4,6 +4,11 @@
 package play.api
 
 import play.utils.Threads
+
+import java.io._
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
 
 /** Application mode, either `DEV`, `TEST`, or `PROD`. */
@@ -13,11 +18,7 @@ object Mode extends Enumeration {
 }
 
 /**
- * @author giabao
- * created: 2013-10-05 12:20
- * Copyright(c) 2011-2013 sandinh.com
- *
- * This is a simplified version of the original Play
+ * @see compare-to-play.md
  *
  * High-level API to access Play global features.
  *
@@ -29,10 +30,11 @@ object Mode extends Enumeration {
  */
 object Play {
 
-  /*
-   * A general purpose logger for Play. Intended for internal usage.
+  private val logger = Logger(Play.getClass)
+  /**
+   * Returns the currently running application, or `null` if not defined.
    */
-  private[play] val logger = Logger("play")
+  def unsafeApplication: Application = _currentApp
 
   /**
    * Optionally returns the current running application.
@@ -57,15 +59,14 @@ object Play {
   def start(app: Application) {
 
     // First stop previous app if exists
-    stop()
+    stop(_currentApp)
 
     _currentApp = app
 
-    //@giabao: commented out the following line. In standalone version, we don't need app.routes
-    //app.routes
-    Threads.withContextClassLoader(classloader(app)) {
-      app.plugins.foreach(_.onStart())
-    }
+    //@giabao: commented out routes & plugins initialize logic.
+    // In standalone version, we don't need app.routes
+    // and play-jdbc-standalone do NOT support the deprecated play Plugin system
+    // (use Play Module instead)
 
     app.mode match {
       case Mode.Test =>
@@ -75,21 +76,113 @@ object Play {
   }
 
   /**
-   * Stops the current application.
+   * Stops the given application.
    */
-  def stop() {
-    Option(_currentApp).map { app =>
+  def stop(app: Application) {
+    if (app != null) {
       Threads.withContextClassLoader(classloader(app)) {
-        app.plugins.reverse.foreach { p =>
-          try { p.onStop() } catch { case NonFatal(e) => logger.warn("Error stopping plugin", e) }
-        }
+        //@giabao: commented out plugins stopping logic.
+        // play-jdbc-standalone do NOT support the deprecated play Plugin system
+        // (use Play Module instead)
+        try { Await.ready(app.stop(), Duration.Inf) } catch { case NonFatal(e) => logger.warn("Error stopping application", e) }
       }
     }
     _currentApp = null
   }
 
   /**
+   * Scans the current application classloader to retrieve a resources contents as a stream.
+   *
+   * For example, to retrieve a configuration file:
+   * {{{
+   * val maybeConf = application.resourceAsStream("conf/logger.xml")
+   * }}}
+   *
+   * @param name Absolute name of the resource (from the classpath root).
+   * @return Maybe a stream if found.
+   */
+  def resourceAsStream(name: String)(implicit app: Application): Option[InputStream] = {
+    app.resourceAsStream(name)
+  }
+
+  /**
+   * Scans the current application classloader to retrieve a resource.
+   *
+   * For example, to retrieve a configuration file:
+   * {{{
+   * val maybeConf = application.resource("conf/logger.xml")
+   * }}}
+   *
+   * @param name absolute name of the resource (from the classpath root)
+   * @return the resource URL, if found
+   */
+  def resource(name: String)(implicit app: Application): Option[java.net.URL] = {
+    app.resource(name)
+  }
+
+  /**
+   * Retrieves a file relative to the current application root path.
+   *
+   * For example, to retrieve a configuration file:
+   * {{{
+   * val myConf = application.getFile("conf/myConf.yml")
+   * }}}
+   *
+   * @param relativePath the relative path of the file to fetch
+   * @return a file instance; it is not guaranteed that the file exists
+   */
+  def getFile(relativePath: String)(implicit app: Application): File = {
+    app.getFile(relativePath)
+  }
+
+  /**
+   * Retrieves a file relative to the current application root path.
+   *
+   * For example, to retrieve a configuration file:
+   * {{{
+   * val myConf = application.getExistingFile("conf/myConf.yml")
+   * }}}
+   *
+   * @param relativePath relative path of the file to fetch
+   * @return an existing file
+   */
+  def getExistingFile(relativePath: String)(implicit app: Application): Option[File] = {
+    app.getExistingFile(relativePath)
+  }
+
+  /**
+   * Returns the current application.
+   */
+  def application(implicit app: Application): Application = app
+
+  /**
    * Returns the current application classloader.
    */
   def classloader(implicit app: Application): ClassLoader = app.classloader
+
+  /**
+   * Returns the current application configuration.
+   */
+  def configuration(implicit app: Application): Configuration = app.configuration
+
+  /**
+   * Returns the current application mode.
+   */
+  def mode(implicit app: Application): Mode.Mode = app.mode
+
+  /**
+   * Returns `true` if the current application is `DEV` mode.
+   */
+  def isDev(implicit app: Application): Boolean = (app.mode == Mode.Dev)
+
+  /**
+   * Returns `true` if the current application is `PROD` mode.
+   */
+  def isProd(implicit app: Application): Boolean = (app.mode == Mode.Prod)
+
+  /**
+   * Returns `true` if the current application is `TEST` mode.
+   */
+  def isTest(implicit app: Application): Boolean = (app.mode == Mode.Test)
+
 }

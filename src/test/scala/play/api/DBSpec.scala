@@ -1,7 +1,7 @@
 package play.api
 
+import com.sandinh.PlayAlone
 import org.specs2.mutable.Specification
-import java.io.File
 import play.api.db.DB
 import anorm._
 import anorm.SqlParser._
@@ -27,8 +27,10 @@ class DBSpec extends Specification{
 
   "DBPlugin" should{
     "execute sql using anorm" in {
-      val app = new SimpleApplication(new File("src/test/resources/conf/application.conf"))
-      Play.start(app)
+      PlayAlone.start(configFile = "src/test/resources/conf/application.conf")
+
+      Play.current.configuration.getString("db.default.driver") must beSome[String]
+
       DB.withConnection{implicit c =>
         SQL(sqlCreate).executeUpdate() === 0
       }
@@ -41,7 +43,7 @@ class DBSpec extends Specification{
       DB.withConnection{implicit c =>
         val l = SQL(sqlSelect).as(parser.*)
         l must have size 2
-        l(0)._2 === "value2"
+        l.head._2 === "value2"
       }
     }
   }
