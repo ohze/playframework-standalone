@@ -12,7 +12,7 @@ lazy val commonSettings = Seq(
     //misc - to mute intellij warning when load sbt project
     dependencyOverrides ++= Set(
         "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4", // % Optional
-        "org.scala-lang" % "scala-reflect" % "2.11.7" // % Optional
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value // % Optional
     )
 )
 
