@@ -5,6 +5,12 @@ Exactly same as play-jdbc, except the following:
 + remove file `BoneCPModule.scala`
 + not depends on BoneCP
 
+## play-ws-alone
+Exactly same as play-ws, except the following:
++ NingWS: WSResponse.xml is not supported in play-ws-alone (so, we can remove xerces:xercesImpl dependency)
++ remove play.api.libs.{oauth, openid}
++ remove deprecated type play.api.libs.ws.WSRequestHolder
+
 ## play-exceptions
 `play-alone` depends on `play-exceptions` which have no dependencies (except scala-library)
 
@@ -16,7 +22,7 @@ Exactly same as play-jdbc, except the following:
 `object iteratee.Execution` have no dependencies (except scala-library).
 
 ## play-alone
-Compare to [play 2.4.x branch at 18 Jul 2015](https://github.com/playframework/playframework/tree/5978b27/framework/src/play):
+Compare to [play 2.4.x branch at 18 Jul 2015](https://github.com/playframework/playframework/tree/3bf2c14/framework/src/play):
 
 ##### play/src/main/resources/reference.conf
 + Remove http, i18n, crypto settings

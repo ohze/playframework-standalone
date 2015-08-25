@@ -11,7 +11,9 @@ lazy val commonSettings = Seq(
 
     //misc - to mute intellij warning when load sbt project
     dependencyOverrides ++= Set(
-        "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4", // % Optional
+        "joda-time"  % "joda-time" % "2.8.2",
+        "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4",
+        "org.scala-lang.modules"  %% "scala-xml" % "1.0.4",
         "org.scala-lang" % "scala-reflect" % scalaVersion.value // % Optional
     )
 )
@@ -36,6 +38,21 @@ lazy val playAlone = project.in(file("play"))
           "org.slf4j"             % "slf4j-api"       % "1.7.12"
         )
     )
+
+lazy val wsAlone = project.in(file("play-ws"))
+    .settings(commonSettings: _*)
+    .settings(
+        name := "play-ws-alone",
+        unmanagedSourceDirectories in Compile <+= baseDirectory {_ / "play-src-ex"},
+        libraryDependencies ++= Seq(
+          "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4",
+          "org.scala-lang.modules"  %% "scala-xml"  % "1.0.4",
+          "com.typesafe.play" %% "play-json"        % "2.4.2",
+          "com.typesafe.play" %% "twirl-api"        % "1.1.1",
+          "commons-codec"     % "commons-codec"     % "1.10",
+          "com.ning"          % "async-http-client" % "1.9.21"
+        )
+    ).dependsOn(playAlone)
 
 lazy val jdbcAlone = project.in(file("play-jdbc"))
     .settings(commonSettings: _*)
