@@ -16,7 +16,7 @@ lazy val commonSettings = Seq(
     )
 )
 
-lazy val `play-alone` = project.in(file("play"))
+lazy val playAlone = project.in(file("play"))
     .settings(commonSettings: _*)
     .settings(
         name := "play-alone",
@@ -37,7 +37,7 @@ lazy val `play-alone` = project.in(file("play"))
         )
     )
 
-lazy val `play-jdbc-alone` = project.in(file("play-jdbc"))
+lazy val jdbcAlone = project.in(file("play-jdbc"))
     .settings(commonSettings: _*)
     .settings(
         name := "play-jdbc-alone",
@@ -48,7 +48,7 @@ lazy val `play-jdbc-alone` = project.in(file("play-jdbc"))
           "tyrex"               % "tyrex"           % "1.0.1",
           "com.zaxxer"          % "HikariCP"        % "2.3.9"
         )
-    ).dependsOn(`play-alone`)
+    ).dependsOn(playAlone)
 
 lazy val root = project.in(file("."))
     .settings(commonSettings: _*)
@@ -62,11 +62,11 @@ lazy val root = project.in(file("."))
         ),
         testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
         parallelExecution in Test := false
-    ).dependsOn(`play-jdbc-alone`)
-    .aggregate(`play-alone`, `play-jdbc-alone`)
+    ).dependsOn(jdbcAlone)
     .settings(
       projectDependencies := Seq(
-        (projectID in `play-jdbc-alone`).value
+        (projectID in jdbcAlone).value
           .exclude("com.typesafe.play", "play_" + scalaBinaryVersion.value)
       )
     )
+    .aggregate(playAlone, jdbcAlone)
