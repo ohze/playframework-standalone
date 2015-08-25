@@ -46,7 +46,7 @@ lazy val jdbcAlone = project.in(file("play-jdbc"))
           //which we need replace by play-alone
           "com.typesafe.play"   %% "play-jdbc-api"  % "2.4.2" intransitive(),
           "tyrex"               % "tyrex"           % "1.0.1",
-          "com.zaxxer"          % "HikariCP"        % "2.3.9"
+          "com.zaxxer"          % "HikariCP"        % "2.4.1"
         )
     ).dependsOn(playAlone)
 
@@ -56,8 +56,8 @@ lazy val root = project.in(file("."))
         name := "play-alone-test",
         publishArtifact := false,
         libraryDependencies ++= Seq(
-            "org.specs2"          %% "specs2-junit" % "3.6.2"   % Test,
-            "com.h2database"      %  "h2"           % "1.4.187" % Test,
+            "org.specs2"          %% "specs2-junit" % "3.6.4"   % Test,
+            "com.h2database"      %  "h2"           % "1.4.188" % Test,
             "com.typesafe.play"   %% "anorm"        % "2.4.0"   % Test
         ),
         testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
