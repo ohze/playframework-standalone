@@ -18,6 +18,8 @@ lazy val commonSettings = Seq(
     )
 )
 
+def specs2(module: String) = "org.specs2" %% s"specs2-$module" % "3.6.4" % Test
+
 lazy val playAlone = project.in(file("play"))
     .settings(commonSettings: _*)
     .settings(
@@ -44,7 +46,10 @@ lazy val wsAlone = project.in(file("play-ws"))
     .settings(
         name := "play-ws-alone",
         unmanagedSourceDirectories in Compile <+= baseDirectory {_ / "play-src-ex"},
-        libraryDependencies ++= Seq(
+        unmanagedSourceDirectories in Test <+= baseDirectory {_ / "play-test" / "src" / "main" / "scala"},
+        libraryDependencies ++= Seq(specs2("junit"), specs2("mock"), specs2("matcher-extra"),
+          "com.typesafe.play" % "play-netty-utils"  % "2.4.2"   % Test,
+          "ch.qos.logback"    % "logback-classic"   % "1.1.3"   % Test,
           "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4",
           "org.scala-lang.modules"  %% "scala-xml"  % "1.0.4",
           "com.typesafe.play" %% "play-json"        % "2.4.2",
@@ -72,8 +77,7 @@ lazy val root = project.in(file("."))
     .settings(
         name := "play-alone-test",
         publishArtifact := false,
-        libraryDependencies ++= Seq(
-            "org.specs2"          %% "specs2-junit" % "3.6.4"   % Test,
+        libraryDependencies ++= Seq(specs2("junit"),
             "com.h2database"      %  "h2"           % "1.4.188" % Test,
             "com.typesafe.play"   %% "anorm"        % "2.4.0"   % Test
         ),
