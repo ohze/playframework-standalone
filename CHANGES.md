@@ -1,5 +1,9 @@
 ### Changelogs
 
+##### v2.4.2_1
++ add play-ws-alone
++ update HikariCP 2.3.9 -> 2.4.1
+
 ##### v2.4.2
 + update play 2.4.2 (require java 8)
 + update scala 2.11.7 & not cross compile to scala 2.10.x
