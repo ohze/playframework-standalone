@@ -10,19 +10,15 @@ Exactly same as play-ws, except the following:
 + NingWS: WSResponse.xml is not supported in play-ws-alone (so, we can remove xerces:xercesImpl dependency)
 + remove play.api.libs.{oauth, openid}
 + remove deprecated type play.api.libs.ws.WSRequestHolder
++ add some extra dependency [classes](play-ws/play-src-ex)
+ from [play](https://github.com/playframework/playframework/tree/3bf2c14/framework/src/play).
 
-## play-exceptions
-`play-alone` depends on `play-exceptions` which have no dependencies (except scala-library)
-
-## play-iteratees
-`play-alone` depends only on `object play.api.libs.iteratee.Execution` in `play-iteratees` library.
-
-`iteratee.Execution` is used at `play.api.inject.DefaultApplicationLifecycle.stop`.
-
-`object iteratee.Execution` have no dependencies (except scala-library).
+ Note:
+ + we remove all members of trait Results & trait LegacyI18nSupport
+ + other classes has identical content as in original play.
 
 ## play-alone
-Compare to [play 2.4.x branch at 18 Jul 2015](https://github.com/playframework/playframework/tree/3bf2c14/framework/src/play):
+Compare to [play 2.4.x branch at 25 Aug 2015](https://github.com/playframework/playframework/tree/3bf2c14/framework/src/play):
 
 ##### play/src/main/resources/reference.conf
 + Remove http, i18n, crypto settings
@@ -90,3 +86,13 @@ This trait is not remove so that `play.api.ApplicationLoader.createContext` is c
 + remove `ApplicationProvider`, `HandleWebCommandSupport`
 
 ##### Other files are have identical content as in Play source
+
+## play-exceptions
+`play-alone` depends on `play-exceptions` which have no dependencies (except scala-library)
+
+## play-iteratees
+`play-alone` depends only on `object play.api.libs.iteratee.Execution` in `play-iteratees` library.
+
+`iteratee.Execution` is used at `play.api.inject.DefaultApplicationLifecycle.stop`.
+
+`object iteratee.Execution` have no dependencies (except scala-library).
