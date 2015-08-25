@@ -64,3 +64,9 @@ lazy val root = project.in(file("."))
         parallelExecution in Test := false
     ).dependsOn(`play-jdbc-alone`)
     .aggregate(`play-alone`, `play-jdbc-alone`)
+    .settings(
+      projectDependencies := Seq(
+        (projectID in `play-jdbc-alone`).value
+          .exclude("com.typesafe.play", "play_" + scalaBinaryVersion.value)
+      )
+    )
