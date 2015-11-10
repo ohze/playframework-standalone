@@ -1,3 +1,5 @@
+Compare to [play 2.4.x branch at 10 Nov 2015](https://github.com/playframework/playframework/tree/baec3da/framework/src):
+
 ## play-jdbc-alone
 Exactly same as play-jdbc, except the following:
 + remove `bonecp` & `evolutions` settings from `reference.conf`
@@ -18,8 +20,6 @@ Exactly same as play-ws, except the following:
  + other classes has identical content as in original play.
 
 ## play-alone
-Compare to [play 2.4.x branch at 25 Aug 2015](https://github.com/playframework/playframework/tree/3bf2c14/framework/src/play):
-
 ##### play/src/main/resources/reference.conf
 + Remove http, i18n, crypto settings
 + remove modules setting: `enabled += "play.api.i18n.I18nModule"`
