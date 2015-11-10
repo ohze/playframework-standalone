@@ -1,6 +1,6 @@
 playframework-standalone
 ====================
-[![Build Status](https://travis-ci.org/giabao/play-jdbc-standalone.svg)](https://travis-ci.org/giabao/play-jdbc-standalone)
+[![Build Status](https://travis-ci.org/giabao/playframework-standalone.svg)](https://travis-ci.org/giabao/playframework-standalone)
 
 ### What?
 This library enable us to use some play (2.4.x) libraries without play itself:
@@ -25,7 +25,7 @@ For play version < 2.4 please use [play-jdbc-standalone 2.1.x](http://search.mav
 ```
 libraryDependencies += "com.sandinh" %% "play-jdbc-alone" % <playAloneVersion>
 ```
-+ See [DBSpec.scala](https://github.com/giabao/play-jdbc-standalone/blob/master/src/test/scala/play/api/DBSpec.scala)
++ See [DBSpec.scala](https://github.com/giabao/playframework-standalone/blob/master/src/test/scala/play/api/DBSpec.scala)
 
 + You can also use the plain `play-jdbc` library with `play-alone`:
 ```

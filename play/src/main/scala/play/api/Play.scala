@@ -65,7 +65,7 @@ object Play {
 
     //@giabao: commented out routes & plugins initialize logic.
     // In standalone version, we don't need app.routes
-    // and play-jdbc-standalone do NOT support the deprecated play Plugin system
+    // and playframework-standalone do NOT support the deprecated play Plugin system
     // (use Play Module instead)
 
     app.mode match {
@@ -82,7 +82,7 @@ object Play {
     if (app != null) {
       Threads.withContextClassLoader(classloader(app)) {
         //@giabao: commented out plugins stopping logic.
-        // play-jdbc-standalone do NOT support the deprecated play Plugin system
+        // playframework-standalone do NOT support the deprecated play Plugin system
         // (use Play Module instead)
         try { Await.ready(app.stop(), Duration.Inf) } catch { case NonFatal(e) => logger.warn("Error stopping application", e) }
       }

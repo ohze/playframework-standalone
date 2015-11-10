@@ -72,7 +72,7 @@ simplified by removing (so that `play-alone` do NOT have `logback` dependency):
 + remove `XML`m `routes`, `global`, `langCookieName`, `langCookieSecure`, `langCookieHttpOnly`
 + `start`: commented out routes & plugins initialize logic.
 In standalone version, we don't need app.routes
-and play-jdbc-standalone do NOT support the deprecated play Plugin system
+and playframework-standalone do NOT support the deprecated play Plugin system
 (use Play Module instead)
 + `stop`: commented out plugins stopping logic.
 
