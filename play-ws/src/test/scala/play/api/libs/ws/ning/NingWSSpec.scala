@@ -22,7 +22,7 @@ object NingWSSpec extends PlaySpecification with Mockito {
   "Ning WS" should {
 
     object PairMagnet {
-      implicit def fromPair(pair: Pair[WSClient, java.net.URL]): WSRequestMagnet =
+      implicit def fromPair(pair: (WSClient, java.net.URL)): WSRequestMagnet =
         new WSRequestMagnet {
           def apply(): WSRequest = {
             val (client, netUrl) = pair

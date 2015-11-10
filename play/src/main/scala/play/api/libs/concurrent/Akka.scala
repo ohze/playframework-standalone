@@ -15,7 +15,7 @@ import play.api._
 import play.api.inject.{ Binding, Injector, ApplicationLifecycle, bind }
 import play.core.ClosableLazy
 import akka.actor._
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
@@ -293,12 +293,12 @@ object ActorSystemProvider {
 
     val stopHook = { () =>
       logger.debug(s"Shutdown application default Akka system: $name")
-      system.shutdown()
+      system.terminate()
 
       config.get[Duration]("play.akka.shutdown-timeout") match {
         case timeout: FiniteDuration =>
           try {
-            system.awaitTermination(timeout)
+            Await.ready(system.whenTerminated, timeout)
           } catch {
             case te: TimeoutException =>
               // oh well.  We tried to be nice.
@@ -306,7 +306,7 @@ object ActorSystemProvider {
           }
         case _ =>
           // wait until it is shutdown
-          system.awaitTermination()
+          Await.ready(system.whenTerminated, Duration.Inf)
       }
 
       Future.successful(())
