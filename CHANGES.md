@@ -1,5 +1,9 @@
 ### Changelogs
 
+##### v2.4.3
++ merge with play source #baec3da (2.4.x branch at 10 Nov 2015)
++ update dependencies
+
 ##### v2.4.2_1
 + add play-ws-alone
 + update HikariCP 2.3.9 -> 2.4.1

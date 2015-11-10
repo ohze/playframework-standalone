@@ -1,7 +1,7 @@
 val playVersion = "2.4.3"
 
 lazy val commonSettings = Seq(
-    version := "2.4.2_1",
+    version := "2.4.3",
     scalaVersion := "2.11.7",
 
     organization := "com.sandinh",
@@ -51,7 +51,7 @@ lazy val wsAlone = project.in(file("play-ws"))
         unmanagedSourceDirectories in Test <+= baseDirectory {_ / "play-test" / "src" / "main" / "scala"},
         libraryDependencies ++= Seq(specs2("junit"), specs2("mock"), specs2("matcher-extra"),
           "com.typesafe.play" % "play-netty-utils"  % playVersion % Test,
-          "ch.qos.logback"    % "logback-classic"   % "1.1.3"   % Test,
+          "ch.qos.logback"    % "logback-classic"   % "1.1.3"     % Test,
           "org.scala-lang.modules"  %% "scala-parser-combinators" % "1.0.4",
           "org.scala-lang.modules"  %% "scala-xml"  % "1.0.5",
           "com.typesafe.play" %% "play-json"        % playVersion,
