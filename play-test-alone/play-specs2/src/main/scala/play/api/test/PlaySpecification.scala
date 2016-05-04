@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
+ * Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
  */
 package play.api.test
 
@@ -13,13 +13,4 @@ import play.api.http.{ HttpProtocol, HttpVerbs, Status, HeaderNames }
  * methods.  It also mixes in the Play test helpers and types for convenience.
  */
 trait PlaySpecification extends Specification
-//    with PlayRunners
-//    with HeaderNames
-//    with Status
-//    with HttpProtocol
-//    with DefaultAwaitTimeout
-//    with ResultExtractors
-//    with Writeables
-//    with RouteInvokers
-//    with FutureAwaits
-//    with HttpVerbs
+//@giabao strip from play-specs2/src/main/scala/play/api/test/PlaySpecification.scala

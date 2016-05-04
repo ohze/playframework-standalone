@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
+ * Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
  */
 package play.api.inject
 
@@ -43,7 +43,7 @@ abstract class Module {
    * Get the bindings provided by this module.
    *
    * Implementations are strongly encouraged to do *nothing* in this method other than provide bindings.  Startup
-   * should be handled in the the constructors and/or providers bound in the returned bindings.  Dependencies on other
+   * should be handled in the constructors and/or providers bound in the returned bindings.  Dependencies on other
    * modules or components should be expressed through constructor arguments.
    *
    * The configuration and environment a provided for the purpose of producing dynamic bindings, for example, if what

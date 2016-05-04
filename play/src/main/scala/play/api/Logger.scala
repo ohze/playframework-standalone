@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
+ * Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
  */
 package play.api
 
-import org.slf4j.{ LoggerFactory, Logger => Slf4jLogger }
+import org.slf4j.{ Logger => Slf4jLogger, LoggerFactory }
 
 /**
  * Typical logger interface.
@@ -150,8 +150,6 @@ trait LoggerLike {
 class Logger(val logger: Slf4jLogger) extends LoggerLike
 
 /**
- * @see compare-to-play.md
- *
  * High-level API for logging operations.
  *
  * For example, logging with the default application logger:
@@ -163,7 +161,6 @@ class Logger(val logger: Slf4jLogger) extends LoggerLike
  * {{{
  * Logger("my.logger").info("Hello!")
  * }}}
- *
  */
 object Logger extends LoggerLike {
 
@@ -187,4 +184,5 @@ object Logger extends LoggerLike {
    * @return a logger
    */
   def apply[T](clazz: Class[T]): Logger = new Logger(LoggerFactory.getLogger(clazz.getName.stripSuffix("$")))
+
 }
