@@ -1,10 +1,10 @@
-package play.api
+package play.api.db
 
+import anorm.SqlParser._
+import anorm._
 import com.sandinh.PlayAlone
 import org.specs2.mutable.Specification
-import play.api.db.DB
-import anorm._
-import anorm.SqlParser._
+import play.api.Play
 import play.api.Play.current
 
 /**
@@ -27,7 +27,7 @@ class DBSpec extends Specification{
 
   "DBPlugin" should{
     "execute sql using anorm" in {
-      PlayAlone.start(configFile = "src/test/resources/conf/application.conf")
+      PlayAlone.start(configFile = "play-jdbc/src/test/resources/conf/application.conf")
 
       Play.current.configuration.getString("db.default.driver") must beSome[String]
 

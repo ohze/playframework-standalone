@@ -3,19 +3,17 @@
  */
 package play.api
 
+import java.io._
 import javax.inject.Inject
 
 import akka.actor.ActorSystem
+import akka.stream.Materializer
 import com.google.inject.Singleton
-import play.api.inject.{ NewInstanceInjector, Injector, DefaultApplicationLifecycle }
+import play.api.inject.{ DefaultApplicationLifecycle, Injector, NewInstanceInjector }
 import play.utils._
-
-import java.io._
-
-import annotation.implicitNotFound
-
-import reflect.ClassTag
+import scala.annotation.implicitNotFound
 import scala.concurrent.Future
+import scala.reflect.ClassTag
 
 /**
  * @see compare-to-play.md
@@ -33,7 +31,7 @@ import scala.concurrent.Future
  * This will create an application using the current classloader.
  *
  */
-@implicitNotFound(msg = "You do not have an implicit Application in scope. If you want to bring the current running Application into context, just add import play.api.Play.current")
+@implicitNotFound(msg = "You do not have an implicit Application in scope. If you want to bring the current running Application into context, please use dependency injection.")
 trait Application {
 
   /**
@@ -57,6 +55,11 @@ trait Application {
    * The default ActorSystem used by the application.
    */
   def actorSystem: ActorSystem
+
+  /**
+   * The default Materializer used by the application.
+   */
+  implicit def materializer: Materializer
 
   /**
    * Retrieves a file relative to the application root path.
@@ -132,7 +135,7 @@ trait Application {
   /**
    * Stop the application.  The returned future will be redeemed when all stop hooks have been run.
    */
-  def stop(): Future[Unit]
+  def stop(): Future[_]
 
   /**
    * Get the injector for this application.
@@ -177,7 +180,8 @@ class DefaultApplication @Inject() (environment: Environment,
     applicationLifecycle: DefaultApplicationLifecycle,
     override val injector: Injector,
     override val configuration: Configuration,
-    override val actorSystem: ActorSystem) extends Application {
+    override val actorSystem: ActorSystem,
+    override val materializer: Materializer) extends Application {
 
   def path = environment.rootPath
 

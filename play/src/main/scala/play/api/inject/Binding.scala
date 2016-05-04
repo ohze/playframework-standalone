@@ -4,13 +4,12 @@
 package play.api.inject
 
 import java.lang.annotation.Annotation
-import javax.inject.{ Named, Provider }
+import javax.inject.Provider
 import scala.language.existentials
 import scala.reflect.ClassTag
 
 import play.inject.SourceProvider
 
-import com.google.inject.name.Names
 
 /**
  * A binding.
@@ -18,7 +17,7 @@ import com.google.inject.name.Names
  * Bindings are used to bind classes, optionally qualified by a JSR-330 qualifier annotation, to instances, providers or
  * implementation classes.
  *
- * Bindings may also specify a JSR-330 scope.  If, and only if that scope is [[javax.inject.Singleton]], then the
+ * Bindings may also specify a JSR-330 scope.  If, and only if that scope is [[$javadoc/javax/inject/Singleton javax.inject.Singleton]], then the
  * binding may declare itself to be eagerly instantiated.  In which case, it should be eagerly instantiated when Play
  * starts up.
  *
@@ -28,6 +27,8 @@ import com.google.inject.name.Names
  * @param eager Whether the binding should be eagerly instantiated.
  * @param source Where this object was bound. Used in error reporting.
  * @see The [[Module]] class for information on how to provide bindings.
+ *
+ * @define javadoc http://docs.oracle.com/javase/8/docs/api
  */
 final case class Binding[T](key: BindingKey[T], target: Option[BindingTarget[T]], scope: Option[Class[_ <: Annotation]], eager: Boolean, source: Object) {
 
@@ -205,8 +206,8 @@ final case class BindingKey[T](clazz: Class[T], qualifier: Option[QualifierAnnot
    * The dependency injection framework will instantiate and inject this provider, and then invoke its `get` method
    * whenever an instance of the class is needed.
    */
-  def toProvider[P <: Provider[T]](provider: Class[P]): Binding[T] =
-    Binding(this, Some(ProviderConstructionTarget(provider)), None, false, SourceLocator.source)
+  def toProvider[P <: Provider[_ <: T]](provider: Class[P]): Binding[T] =
+    Binding(this, Some(ProviderConstructionTarget[T](provider)), None, false, SourceLocator.source)
 
   /**
    * Bind this binding key to the given provider class.
@@ -214,7 +215,7 @@ final case class BindingKey[T](clazz: Class[T], qualifier: Option[QualifierAnnot
    * The dependency injection framework will instantiate and inject this provider, and then invoke its `get` method
    * whenever an instance of the class is needed.
    */
-  def toProvider[P <: Provider[T]: ClassTag]: Binding[T] =
+  def toProvider[P <: Provider[_ <: T]: ClassTag]: Binding[T] =
     toProvider(implicitly[ClassTag[P]].runtimeClass.asInstanceOf[Class[P]])
 
   /**
@@ -253,7 +254,7 @@ final case class ProviderTarget[T](provider: Provider[_ <: T]) extends BindingTa
  *
  * @see The [[Module]] class for information on how to provide bindings.
  */
-final case class ProviderConstructionTarget[T](provider: Class[_ <: Provider[T]]) extends BindingTarget[T]
+final case class ProviderConstructionTarget[T](provider: Class[_ <: Provider[_ <: T]]) extends BindingTarget[T]
 
 /**
  * A binding target that is provided by a class.

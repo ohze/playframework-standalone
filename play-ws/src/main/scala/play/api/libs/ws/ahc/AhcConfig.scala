@@ -3,22 +3,26 @@
  *  * Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
  *
  */
-package play.api.libs.ws.ning
+package play.api.libs.ws.ahc
 
 import java.security.KeyStore
 import java.security.cert.CertPathValidatorException
-import javax.net.ssl._
+import javax.inject.{ Singleton, Inject, Provider }
 
 import org.asynchttpclient.netty.ssl.JsseSslEngineFactory
-import org.asynchttpclient.{ AsyncHttpClientConfig, DefaultAsyncHttpClientConfig }
 import org.slf4j.LoggerFactory
-import play.api.libs.ws.WSClientConfig
+
+import org.asynchttpclient.{ DefaultAsyncHttpClientConfig, AsyncHttpClientConfig }
+
+import javax.net.ssl._
+import play.api.{ ConfigLoader, PlayConfig, Environment, Configuration }
 import play.api.libs.ws.ssl._
+import play.api.libs.ws.WSClientConfig
 
 import scala.concurrent.duration._
 
 /**
- * Ning client config.
+ * Ahc client config.
  *
  * @param wsClientConfig The general WS client config.
  * @param maxConnectionsPerHost The maximum number of connections to make per host. -1 means no maximum.
@@ -28,10 +32,9 @@ import scala.concurrent.duration._
  * @param maxNumberOfRedirects The maximum number of redirects.
  * @param maxRequestRetry The maximum number of times to retry a request if it fails.
  * @param disableUrlEncoding Whether the raw URL should be used.
- * @param keepAlive whether connection pooling should be used.
+ * @param keepAlive keeps thread pool active, replaces allowPoolingConnection and allowSslConnectionPool
  */
-@deprecated("Use play.api.libs.ws.ahc.AhcWSClientConfig", "2.5")
-case class NingWSClientConfig(wsClientConfig: WSClientConfig = WSClientConfig(),
+case class AhcWSClientConfig(wsClientConfig: WSClientConfig = WSClientConfig(),
   maxConnectionsPerHost: Int = -1,
   maxConnectionsTotal: Int = -1,
   maxConnectionLifetime: Duration = Duration.Inf,
@@ -42,23 +45,78 @@ case class NingWSClientConfig(wsClientConfig: WSClientConfig = WSClientConfig(),
   keepAlive: Boolean = true)
 
 /**
- * Factory for creating NingWSClientConfig, for use from Java.
+ * Factory for creating AhcWSClientConfig, for use from Java.
  */
-@deprecated("Use play.api.libs.ws.ahc.AhcWSConfigBuilder", "2.5")
-object NingWSClientConfigFactory {
+object AhcWSClientConfigFactory {
 
   def forClientConfig(config: WSClientConfig) = {
-    NingWSClientConfig(wsClientConfig = config)
+    AhcWSClientConfig(wsClientConfig = config)
+  }
+}
+
+/**
+ * This class creates a DefaultWSClientConfig object from the play.api.Configuration.
+ */
+@Singleton
+class AhcWSClientConfigParser @Inject() (wsClientConfig: WSClientConfig,
+    configuration: Configuration,
+    environment: Environment) extends Provider[AhcWSClientConfig] {
+
+  def get = parse()
+
+  def parse(): AhcWSClientConfig = {
+
+    val playConfig = PlayConfig(configuration)
+    def get[A: ConfigLoader](name: String): A =
+      playConfig.getDeprecated[A](s"play.ws.ahc.$name", s"play.ws.ning.$name")
+
+    val maximumConnectionsPerHost = get[Int]("maxConnectionsPerHost")
+    val maximumConnectionsTotal = get[Int]("maxConnectionsTotal")
+    val maxConnectionLifetime = get[Duration]("maxConnectionLifetime")
+    val idleConnectionInPoolTimeout = get[Duration]("idleConnectionInPoolTimeout")
+    val maximumNumberOfRedirects = get[Int]("maxNumberOfRedirects")
+    val maxRequestRetry = get[Int]("maxRequestRetry")
+    val disableUrlEncoding = get[Boolean]("disableUrlEncoding")
+    val keepAlive = get[Boolean]("keepAlive")
+
+    // allowPoolingConnection and allowSslConnectionPool were merged into keepAlive in AHC 2.0
+    // We want one value, keepAlive, and we don't want to confuse anyone who has to migrate.
+    // keepAlive
+    if (playConfig.underlying.hasPath("play.ws.ahc.keepAlive")) {
+      val msg = "Both allowPoolingConnection and allowSslConnectionPool have been replaced by keepAlive!"
+      Seq("play.ws.ning.allowPoolingConnection", "play.ws.ning.allowSslConnectionPool").foreach { s =>
+        if (playConfig.underlying.hasPath(s)) {
+          throw playConfig.reportError(s, msg)
+        }
+      }
+    }
+    AhcWSClientConfig(
+      wsClientConfig = wsClientConfig,
+      maxConnectionsPerHost = maximumConnectionsPerHost,
+      maxConnectionsTotal = maximumConnectionsTotal,
+      maxConnectionLifetime = maxConnectionLifetime,
+      idleConnectionInPoolTimeout = idleConnectionInPoolTimeout,
+      maxNumberOfRedirects = maximumNumberOfRedirects,
+      maxRequestRetry = maxRequestRetry,
+      disableUrlEncoding = disableUrlEncoding,
+      keepAlive = keepAlive
+    )
   }
 }
 
 /**
  * Builds a valid AsyncHttpClientConfig object from config.
  *
- * @param ningConfig the ning client configuration.
+ * @param ahcConfig the ahc client configuration.
  */
-@deprecated("Use play.api.libs.ws.ahc.AhcConfigBuilder", "2.5")
-class NingAsyncHttpClientConfigBuilder(ningConfig: NingWSClientConfig = NingWSClientConfig()) {
+class AhcConfigBuilder(ahcConfig: AhcWSClientConfig = AhcWSClientConfig()) {
+
+  /**
+   * Constructor for backwards compatibility with <= 2.3.X
+   */
+  @deprecated("Use AhcConfigBuilder(AhcWSClientConfig)", "2.5")
+  def this(config: WSClientConfig) =
+    this(AhcWSClientConfig(wsClientConfig = config))
 
   protected val addCustomSettings: DefaultAsyncHttpClientConfig.Builder => DefaultAsyncHttpClientConfig.Builder = identity
 
@@ -67,7 +125,7 @@ class NingAsyncHttpClientConfigBuilder(ningConfig: NingWSClientConfig = NingWSCl
    */
   val builder: DefaultAsyncHttpClientConfig.Builder = new DefaultAsyncHttpClientConfig.Builder()
 
-  private[ning] val logger = LoggerFactory.getLogger(this.getClass)
+  private[ahc] val logger = LoggerFactory.getLogger(this.getClass)
 
   /**
    * Configure the underlying builder with values specified by the `config`, and add any custom settings.
@@ -75,9 +133,9 @@ class NingAsyncHttpClientConfigBuilder(ningConfig: NingWSClientConfig = NingWSCl
    * @return the resulting builder
    */
   def configure(): DefaultAsyncHttpClientConfig.Builder = {
-    val config = ningConfig.wsClientConfig
+    val config = ahcConfig.wsClientConfig
 
-    configureWS(ningConfig)
+    configureWS(ahcConfig)
 
     configureSSL(config.ssl)
 
@@ -100,18 +158,18 @@ class NingAsyncHttpClientConfigBuilder(ningConfig: NingWSClientConfig = NingWSCl
    * @return the new builder
    */
   def modifyUnderlying(
-    modify: DefaultAsyncHttpClientConfig.Builder => DefaultAsyncHttpClientConfig.Builder): NingAsyncHttpClientConfigBuilder = {
-    new NingAsyncHttpClientConfigBuilder(ningConfig) {
-      override val addCustomSettings = modify compose NingAsyncHttpClientConfigBuilder.this.addCustomSettings
-      override val builder = NingAsyncHttpClientConfigBuilder.this.builder
+    modify: DefaultAsyncHttpClientConfig.Builder => DefaultAsyncHttpClientConfig.Builder): AhcConfigBuilder = {
+    new AhcConfigBuilder(ahcConfig) {
+      override val addCustomSettings = modify compose AhcConfigBuilder.this.addCustomSettings
+      override val builder = AhcConfigBuilder.this.builder
     }
   }
 
   /**
    * Configures the global settings.
    */
-  def configureWS(ningConfig: NingWSClientConfig): Unit = {
-    val config = ningConfig.wsClientConfig
+  def configureWS(ahcConfig: AhcWSClientConfig): Unit = {
+    val config = ahcConfig.wsClientConfig
 
     def toMillis(duration: Duration): Int = {
       if (duration.isFinite()) duration.toMillis.toInt
@@ -127,23 +185,20 @@ class NingAsyncHttpClientConfigBuilder(ningConfig: NingWSClientConfig = NingWSCl
 
     config.userAgent foreach builder.setUserAgent
 
-    // setAllowPoolingConnections and setAllowPoolingSslConnections were merged into isKeepAlive
-    val keepAlive = ningConfig.keepAlive
-    builder.setKeepAlive(keepAlive)
-
-    builder.setMaxConnectionsPerHost(ningConfig.maxConnectionsPerHost)
-    builder.setMaxConnections(ningConfig.maxConnectionsTotal)
-    builder.setConnectionTtl(toMillis(ningConfig.maxConnectionLifetime))
-    builder.setPooledConnectionIdleTimeout(toMillis(ningConfig.idleConnectionInPoolTimeout))
-    builder.setMaxRedirects(ningConfig.maxNumberOfRedirects)
-    builder.setMaxRequestRetry(ningConfig.maxRequestRetry)
-    builder.setDisableUrlEncodingForBoundRequests(ningConfig.disableUrlEncoding)
-    // forcing shutdown of the AHC event loop because otherwise the test suite fails with a 
-    // OutOfMemoryException: cannot create new native thread. This is because when executing 
-    // tests in parallel there can be many threads pool that are left around because AHC is 
+    builder.setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
+    builder.setMaxConnections(ahcConfig.maxConnectionsTotal)
+    builder.setConnectionTtl(toMillis(ahcConfig.maxConnectionLifetime))
+    builder.setPooledConnectionIdleTimeout(toMillis(ahcConfig.idleConnectionInPoolTimeout))
+    builder.setMaxRedirects(ahcConfig.maxNumberOfRedirects)
+    builder.setMaxRequestRetry(ahcConfig.maxRequestRetry)
+    builder.setDisableUrlEncodingForBoundRequests(ahcConfig.disableUrlEncoding)
+    builder.setKeepAlive(ahcConfig.keepAlive)
+    // forcing shutdown of the AHC event loop because otherwise the test suite fails with a
+    // OutOfMemoryException: cannot create new native thread. This is because when executing
+    // tests in parallel there can be many threads pool that are left around because AHC is
     // shutting them down gracefully.
-    // The proper solution is to make these parameters configurable, so that they can be set 
-    // to 0 when running tests, and keep sensible defaults otherwise. AHC defaults are 
+    // The proper solution is to make these parameters configurable, so that they can be set
+    // to 0 when running tests, and keep sensible defaults otherwise. AHC defaults are
     // shutdownQuiet=2000 (milliseconds) and shutdownTimeout=15000 (milliseconds).
     builder.setShutdownQuietPeriod(0)
     builder.setShutdownTimeout(0)

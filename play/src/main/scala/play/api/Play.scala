@@ -3,6 +3,7 @@
  */
 package play.api
 
+import akka.stream.Materializer
 import play.utils.Threads
 
 import java.io._
@@ -10,6 +11,9 @@ import java.io._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
+import javax.xml.parsers.SAXParserFactory
+import org.apache.xerces.impl.Constants
+import javax.xml.XMLConstants
 
 /** Application mode, either `DEV`, `TEST`, or `PROD`. */
 object Mode extends Enumeration {
@@ -31,23 +35,56 @@ object Mode extends Enumeration {
 object Play {
 
   private val logger = Logger(Play.getClass)
+
+  /*
+   * We want control over the sax parser used so we specify the factory required explicitly. We know that
+   * SAXParserFactoryImpl will yield a SAXParser having looked at its source code, despite there being
+   * no explicit doco stating this is the case. That said, there does not appear to be any other way than
+   * declaring a factory in order to yield a parser of a specific type.
+   */
+  private[play] val xercesSaxParserFactory =
+    SAXParserFactory.newInstance("org.apache.xerces.jaxp.SAXParserFactoryImpl", Play.getClass.getClassLoader)
+  xercesSaxParserFactory.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false)
+  xercesSaxParserFactory.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false)
+  xercesSaxParserFactory.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.DISALLOW_DOCTYPE_DECL_FEATURE, true)
+  xercesSaxParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+
+  /*
+   * A parser to be used that is configured to ensure that no schemas are loaded.
+   */
+  private[play] def XML = scala.xml.XML.withSAXParser(xercesSaxParserFactory.newSAXParser())
+
   /**
    * Returns the currently running application, or `null` if not defined.
+   *
+   * @deprecated This is a static reference to application, use DI, since 2.5.0
    */
+  @deprecated("This is a static reference to application, use DI", "2.5.0")
   def unsafeApplication: Application = _currentApp
 
   /**
    * Optionally returns the current running application.
+   *
+   * @deprecated This is a static reference to application, use DI, since 2.5.0
    */
+  @deprecated("This is a static reference to application, use DI instead", "2.5.0")
   def maybeApplication: Option[Application] = Option(_currentApp)
+
+  private[play] def privateMaybeApplication: Option[Application] = Option(_currentApp)
+
+  /* Used by the routes compiler to resolve an application for the injector.  Treat as private. */
+  def routesCompilerMaybeApplication: Option[Application] = Option(_currentApp)
 
   /**
    * Implicitly import the current running application in the context.
    *
    * Note that by relying on this, your code will only work properly in
    * the context of a running application.
+   *
+   * @deprecated This is a static reference to application, use DI, since 2.5.0
    */
-  implicit def current: Application = maybeApplication.getOrElse(sys.error("There is no started application"))
+  @deprecated("This is a static reference to application, use DI instead", "2.5.0")
+  implicit def current: Application = privateMaybeApplication.getOrElse(sys.error("There is no started application"))
 
   @volatile private[play] var _currentApp: Application = _
 
@@ -63,10 +100,8 @@ object Play {
 
     _currentApp = app
 
-    //@giabao: commented out routes & plugins initialize logic.
-    // In standalone version, we don't need app.routes
-    // and playframework-standalone do NOT support the deprecated play Plugin system
-    // (use Play Module instead)
+    //@giabao: commented out global.beforeStart / onStart, routes initialize.
+    // In standalone version, we have removed app.routes & app.global
 
     app.mode match {
       case Mode.Test =>
@@ -80,10 +115,8 @@ object Play {
    */
   def stop(app: Application) {
     if (app != null) {
-      Threads.withContextClassLoader(classloader(app)) {
-        //@giabao: commented out plugins stopping logic.
-        // playframework-standalone do NOT support the deprecated play Plugin system
-        // (use Play Module instead)
+      Threads.withContextClassLoader(app.classloader) {
+        //app.global.onStop(app) @giabao
         try { Await.ready(app.stop(), Duration.Inf) } catch { case NonFatal(e) => logger.warn("Error stopping application", e) }
       }
     }
@@ -91,98 +124,82 @@ object Play {
   }
 
   /**
-   * Scans the current application classloader to retrieve a resources contents as a stream.
-   *
-   * For example, to retrieve a configuration file:
-   * {{{
-   * val maybeConf = application.resourceAsStream("conf/logger.xml")
-   * }}}
-   *
-   * @param name Absolute name of the resource (from the classpath root).
-   * @return Maybe a stream if found.
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def resourceAsStream(name: String)(implicit app: Application): Option[InputStream] = {
     app.resourceAsStream(name)
   }
 
   /**
-   * Scans the current application classloader to retrieve a resource.
-   *
-   * For example, to retrieve a configuration file:
-   * {{{
-   * val maybeConf = application.resource("conf/logger.xml")
-   * }}}
-   *
-   * @param name absolute name of the resource (from the classpath root)
-   * @return the resource URL, if found
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def resource(name: String)(implicit app: Application): Option[java.net.URL] = {
     app.resource(name)
   }
 
   /**
-   * Retrieves a file relative to the current application root path.
-   *
-   * For example, to retrieve a configuration file:
-   * {{{
-   * val myConf = application.getFile("conf/myConf.yml")
-   * }}}
-   *
-   * @param relativePath the relative path of the file to fetch
-   * @return a file instance; it is not guaranteed that the file exists
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def getFile(relativePath: String)(implicit app: Application): File = {
     app.getFile(relativePath)
   }
 
   /**
-   * Retrieves a file relative to the current application root path.
-   *
-   * For example, to retrieve a configuration file:
-   * {{{
-   * val myConf = application.getExistingFile("conf/myConf.yml")
-   * }}}
-   *
-   * @param relativePath relative path of the file to fetch
-   * @return an existing file
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def getExistingFile(relativePath: String)(implicit app: Application): Option[File] = {
     app.getExistingFile(relativePath)
   }
 
   /**
-   * Returns the current application.
+   * @deprecated inject the [[play.api.Application]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def application(implicit app: Application): Application = app
 
   /**
-   * Returns the current application classloader.
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def classloader(implicit app: Application): ClassLoader = app.classloader
 
   /**
-   * Returns the current application configuration.
+   * @deprecated inject the [[play.api.Configuration]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def configuration(implicit app: Application): Configuration = app.configuration
 
   /**
-   * Returns the current application mode.
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def mode(implicit app: Application): Mode.Mode = app.mode
 
   /**
-   * Returns `true` if the current application is `DEV` mode.
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def isDev(implicit app: Application): Boolean = (app.mode == Mode.Dev)
 
   /**
-   * Returns `true` if the current application is `PROD` mode.
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def isProd(implicit app: Application): Boolean = (app.mode == Mode.Prod)
 
   /**
-   * Returns `true` if the current application is `TEST` mode.
+   * @deprecated inject the [[play.api.Environment]] instead
    */
+  @deprecated("inject the play.api.Environment instead", "2.5.0")
   def isTest(implicit app: Application): Boolean = (app.mode == Mode.Test)
 
+
+  /**
+   * A convenient function for getting an implicit materializer from the current application
+   */
+  implicit def materializer(implicit app: Application): Materializer = app.materializer
 }

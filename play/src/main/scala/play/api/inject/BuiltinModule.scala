@@ -1,13 +1,18 @@
 /*
- * Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
  */
 package play.api.inject
 
+import java.util.concurrent.Executor
+
 import akka.actor.ActorSystem
 import javax.inject.Provider
+
+import akka.stream.Materializer
 import play.api._
-import play.api.libs.concurrent.{ExecutionContextProvider, ActorSystemProvider}
-import scala.concurrent.ExecutionContext
+import play.api.libs.concurrent.{ActorSystemProvider, ExecutionContextProvider, MaterializerProvider}
+
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 /**
  * @see compare-to-play.md
@@ -32,7 +37,10 @@ class BuiltinModule extends Module {
       bind[Application].to[DefaultApplication],
 
       bind[ActorSystem].toProvider[ActorSystemProvider],
-      bind[ExecutionContext].toProvider[ExecutionContextProvider]
+      bind[Materializer].toProvider[MaterializerProvider],
+      bind[ExecutionContextExecutor].toProvider[ExecutionContextProvider],
+      bind[ExecutionContext].to[ExecutionContextExecutor],
+      bind[Executor].to[ExecutionContextExecutor]
     )
   }
 }

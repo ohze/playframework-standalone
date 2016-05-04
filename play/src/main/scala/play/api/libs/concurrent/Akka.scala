@@ -5,8 +5,8 @@ package play.api.libs.concurrent
 
 import java.lang.reflect.Method
 
-import com.google.inject.util.Types
-import com.google.inject.{ Binder, Key, AbstractModule }
+import akka.stream.{ ActorMaterializer, Materializer }
+import com.google.inject.{ Binder, AbstractModule }
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.typesafe.config.Config
 import java.util.concurrent.TimeoutException
@@ -15,7 +15,7 @@ import play.api._
 import play.api.inject.{ Binding, Injector, ApplicationLifecycle, bind }
 import play.core.ClosableLazy
 import akka.actor._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
@@ -24,17 +24,18 @@ import scala.reflect.ClassTag
  */
 object Akka {
 
-  private val actorSystemCache = Application.instanceCache[ActorSystem]
-
   /**
-   * Retrieve the application Akka Actor system.
+   * Retrieve the application Akka Actor system, using an implicit application.
+   *
+   * @deprecated Please use a dependency injected ActorSystem, since 2.5.0
    *
    * Example:
    * {{{
    * val newActor = Akka.system.actorOf[Props[MyActor]]
    * }}}
    */
-  def system(implicit app: Application): ActorSystem = actorSystemCache(app)
+  @deprecated("Please use a dependency injected ActorSystem", "2.5.0")
+  def system(implicit app: Application): ActorSystem = app.actorSystem
 
   /**
    * Create a provider for an actor implemented by the given class, with the given name.
@@ -261,16 +262,24 @@ class ActorSystemProvider @Inject() (environment: Environment, configuration: Co
 }
 
 /**
+ * Provider for the default flow materializer
+ */
+@Singleton
+class MaterializerProvider @Inject() (actorSystem: ActorSystem) extends Provider[Materializer] {
+  lazy val get: Materializer = ActorMaterializer()(actorSystem)
+}
+
+/**
  * Provider for the default execution context
  */
 @Singleton
-class ExecutionContextProvider @Inject() (actorSystem: ActorSystem) extends Provider[ExecutionContext] {
+class ExecutionContextProvider @Inject() (actorSystem: ActorSystem) extends Provider[ExecutionContextExecutor] {
   def get = actorSystem.dispatcher
 }
 
 object ActorSystemProvider {
 
-  type StopHook = () => Future[Unit]
+  type StopHook = () => Future[_]
 
   private val logger = Logger(classOf[ActorSystemProvider])
 
@@ -298,7 +307,7 @@ object ActorSystemProvider {
       config.get[Duration]("play.akka.shutdown-timeout") match {
         case timeout: FiniteDuration =>
           try {
-            Await.ready(system.whenTerminated, timeout)
+            Await.result(system.whenTerminated, timeout)
           } catch {
             case te: TimeoutException =>
               // oh well.  We tried to be nice.
@@ -306,7 +315,7 @@ object ActorSystemProvider {
           }
         case _ =>
           // wait until it is shutdown
-          Await.ready(system.whenTerminated, Duration.Inf)
+          Await.result(system.whenTerminated, Duration.Inf)
       }
 
       Future.successful(())
@@ -319,8 +328,8 @@ object ActorSystemProvider {
    * A lazy wrapper around `start`. Useful when the `ActorSystem` may
    * not be needed.
    */
-  def lazyStart(classLoader: => ClassLoader, configuration: => Configuration): ClosableLazy[ActorSystem, Future[Unit]] = {
-    new ClosableLazy[ActorSystem, Future[Unit]] {
+  def lazyStart(classLoader: => ClassLoader, configuration: => Configuration): ClosableLazy[ActorSystem, Future[_]] = {
+    new ClosableLazy[ActorSystem, Future[_]] {
       protected def create() = start(classLoader, configuration)
       protected def closeNotNeeded = Future.successful(())
     }

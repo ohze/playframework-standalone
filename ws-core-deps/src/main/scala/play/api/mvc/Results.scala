@@ -3,13 +3,15 @@
  */
 package play.api.mvc
 
+import akka.util.ByteString
+
 /**
  * A Codec handle the conversion of String to Byte arrays.
  *
  * @param charset The charset to be sent to the client.
  * @param encode The transformation function.
  */
-case class Codec(val charset: String)(val encode: String => Array[Byte], val decode: Array[Byte] => String)
+case class Codec(charset: String)(val encode: String => ByteString, val decode: ByteString => String)
 
 /**
  * Default Codec support.
@@ -19,7 +21,7 @@ object Codec {
   /**
    * Create a Codec from an encoding already supported by the JVM.
    */
-  def javaSupported(charset: String) = Codec(charset)(str => str.getBytes(charset), bytes => new String(bytes, charset))
+  def javaSupported(charset: String) = Codec(charset)(str => ByteString.apply(str, charset), bytes => bytes.decodeString(charset))
 
   /**
    * Codec for UTF-8

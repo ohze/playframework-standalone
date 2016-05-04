@@ -79,6 +79,8 @@ abstract class Module {
  */
 object Modules {
 
+  private val DefaultModuleName = "Module"
+
   /**
    * @see compare-to-play.md
    *
@@ -100,39 +102,53 @@ object Modules {
 
     val moduleClassNames = includes.toSet -- excludes
 
+    // Construct the default module if it exists
+    // Allow users to add "Module" to the excludes to exclude even attempting to look it up
+    val defaultModule = if (excludes.contains(DefaultModuleName)) None else try {
+      val defaultModuleClass = environment.classLoader.loadClass(DefaultModuleName).asInstanceOf[Class[Any]]
+      Some(constructModule(environment, configuration, DefaultModuleName, () => defaultModuleClass))
+    } catch {
+      case e: ClassNotFoundException => None
+    }
+
     moduleClassNames.map { className =>
-      try {
-        val clazz = environment.classLoader.loadClass(className)
+      constructModule(environment, configuration, className,
+        () => environment.classLoader.loadClass(className).asInstanceOf[Class[Any]])
+    }.toSeq ++ defaultModule
+  }
 
-        def tryConstruct(args: AnyRef*): Option[Any] = {
-          val ctor: Option[Constructor[_]] = try {
-            val argTypes = args.map(_.getClass)
-            Some(clazz.getConstructor(argTypes: _*))
-          } catch {
-            case _: NoSuchMethodException => None
-            case _: SecurityException => None
-          }
-          ctor.map(_.newInstance(args: _*))
+  private def constructModule[T](environment: Environment, configuration: Configuration, className: String, loadModuleClass: () => Class[T]): T = {
+    try {
+      val moduleClass = loadModuleClass()
+
+      def tryConstruct(args: AnyRef*): Option[T] = {
+        val ctor: Option[Constructor[T]] = try {
+          val argTypes = args.map(_.getClass)
+          Some(moduleClass.getConstructor(argTypes: _*))
+        } catch {
+          case _: NoSuchMethodException => None
+          case _: SecurityException => None
         }
+        ctor.map(_.newInstance(args: _*))
+      }
 
-        {
-          tryConstruct(environment, configuration)
+      {
+        tryConstruct(environment, configuration)
 //        } orElse {
 //          tryConstruct(new JavaEnvironment(environment), new JavaConfiguration(configuration))
-        } orElse {
-          tryConstruct()
-        } getOrElse {
-          throw new PlayException("No valid constructors", "Module [" + className + "] cannot be instantiated.")
-        }
-      } catch {
-        case e: PlayException => throw e
-        case e: VirtualMachineError => throw e
-        case e: ThreadDeath => throw e
-        case e: Throwable => throw new PlayException(
-          "Cannot load module",
-          "Module [" + className + "] cannot be instantiated.",
-          e)
+      } orElse {
+        tryConstruct()
+      } getOrElse {
+        throw new PlayException("No valid constructors", "Module [" + className + "] cannot be instantiated.")
       }
-    }.toSeq
+    } catch {
+      case e: PlayException => throw e
+      case e: VirtualMachineError => throw e
+      case e: ThreadDeath => throw e
+      case e: Throwable => throw new PlayException(
+        "Cannot load module",
+        "Module [" + className + "] cannot be instantiated.",
+        e)
+    }
   }
 }

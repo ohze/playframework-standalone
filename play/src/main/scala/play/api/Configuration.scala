@@ -12,10 +12,8 @@ import com.typesafe.config.impl.ConfigImpl
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.{ Duration, FiniteDuration }
-import scala.io.Source
-import scala.util.Try
 import scala.util.control.NonFatal
-import play.utils.{ PlayIO, Threads }
+import play.utils.PlayIO
 
 /**
  * This object provides a set of operations to create `Configuration` values.
@@ -101,28 +99,6 @@ object Configuration {
       Configuration(resolvedConfig)
     } catch {
       case e: ConfigException => throw configError(e.origin, e.getMessage, Some(e))
-    }
-  }
-
-  /**
-   * Loads a new `Configuration` either from the classpath or from
-   * `conf/application.conf` depending on the application's Mode.
-   *
-   * The provided mode is used if the application is not ready
-   * yet, just like when calling this method from `play.api.Application`.
-   *
-   * Defaults to Mode.Dev
-   *
-   * @param mode Application mode.
-   * @return a `Configuration` instance
-   */
-  @deprecated("Use load(Environment, Map[String,AnyRef]) instead", "2.4.0")
-  def load(appPath: File, mode: Mode.Mode = Mode.Dev, devSettings: Map[String, AnyRef] = Map.empty): Configuration = {
-    val currentMode = Play.maybeApplication.map(_.mode).getOrElse(mode)
-    if (currentMode == Mode.Prod) {
-      load(Thread.currentThread.getContextClassLoader, System.getProperties, Map.empty, allowMissingApplicationConf = false)
-    } else {
-      load(Thread.currentThread.getContextClassLoader, System.getProperties, devSettings, allowMissingApplicationConf = true)
     }
   }
 
@@ -269,7 +245,7 @@ case class Configuration(underlying: Config) {
    * }}}
    *
    * A configuration error will be thrown if the configuration value is not a valid `Boolean`.
-   * Authorized vales are `yes/no or true/false.
+   * Authorized values are `yes`/`no` or `true`/`false`.
    *
    * @param path the configuration key, relative to the configuration root key
    * @return a configuration value
@@ -407,7 +383,7 @@ case class Configuration(underlying: Config) {
    * }}}
    *
    * A configuration error will be thrown if the configuration value is not a valid `Boolean`.
-   * Authorized vales are `yes/no or true/false.
+   * Authorized values are `yes`/`no` or `true`/`false`.
    */
   def getBooleanList(path: String): Option[java.util.List[java.lang.Boolean]] = readValue(path, underlying.getBooleanList(path))
 
@@ -427,7 +403,7 @@ case class Configuration(underlying: Config) {
    * }}}
    *
    * A configuration error will be thrown if the configuration value is not a valid `Boolean`.
-   * Authorized vales are `yes/no or true/false.
+   * Authorized values are `yes`/`no` or `true`/`false`.
    */
   def getBooleanSeq(path: String): Option[Seq[java.lang.Boolean]] = getBooleanList(path).map(asScalaList)
 
@@ -801,7 +777,8 @@ case class Configuration(underlying: Config) {
    * val configuration = Configuration.load()
    * val subKeys = configuration.subKeys
    * }}}
-   * @return the set of direct sub-keys available in this configuration
+    *
+    * @return the set of direct sub-keys available in this configuration
    */
   def subKeys: Set[String] = underlying.root().keySet().asScala.toSet
 
@@ -933,29 +910,17 @@ case class Configuration(underlying: Config) {
 private[play] class PlayConfig(val underlying: Config) {
 
   /**
-   * Get the config at the given path.
-   */
+    * Get the config at the given path.
+    */
   def get[A](path: String)(implicit loader: ConfigLoader[A]): A = {
     loader.load(underlying, path)
   }
 
   /**
-   * Get an optional configuration item.
-   *
-   * If the value of the item is null, this will return None, otherwise returns Some.
-   *
-   * @throws com.typesafe.config.ConfigException.Missing if the value is undefined (as opposed to null) this will still
-   *         throw an exception.
-   */
-  def getOptional[A: ConfigLoader](path: String): Option[A] = {
-    if (!underlying.getIsNull(path)) Some(get[A](path)) else None
-  }
-
-  /**
-   * Get a prototyped sequence of objects.
-   *
-   * Each object in the sequence will fallback to the object loaded from prototype.$path.
-   */
+    * Get a prototyped sequence of objects.
+    *
+    * Each object in the sequence will fallback to the object loaded from prototype.$path.
+    */
   def getPrototypedSeq(path: String, prototypePath: String = "prototype.$path"): Seq[PlayConfig] = {
     val prototype = underlying.getConfig(prototypePath.replace("$path", path))
     get[Seq[Config]](path).map { config =>
@@ -964,10 +929,10 @@ private[play] class PlayConfig(val underlying: Config) {
   }
 
   /**
-   * Get a prototyped map of objects.
-   *
-   * Each value in the map will fallback to the object loaded from prototype.$path.
-   */
+    * Get a prototyped map of objects.
+    *
+    * Each value in the map will fallback to the object loaded from prototype.$path.
+    */
   def getPrototypedMap(path: String, prototypePath: String = "prototype.$path"): Map[String, PlayConfig] = {
     val prototype = if (prototypePath.isEmpty) {
       underlying
@@ -980,35 +945,18 @@ private[play] class PlayConfig(val underlying: Config) {
   }
 
   /**
-   * Get an optional deprecated configuration item.
-   *
-   * If the deprecated configuration item is defined, it will be returned, and a warning will be logged.
-   *
-   * Otherwise, the configuration from path will be looked up.
-   *
-   * If the value of the item is null, this will return None, otherwise returns Some.
-   */
-  def getOptionalDeprecated[A: ConfigLoader](path: String, deprecated: String): Option[A] = {
-    if (underlying.hasPath(deprecated)) {
-      reportDeprecation(path, deprecated)
-      getOptional[A](deprecated)
-    } else {
-      getOptional[A](path)
-    }
-  }
-
-  /**
-   * Get a deprecated configuration item.
-   *
-   * If the deprecated configuration item is defined, it will be returned, and a warning will be logged.
-   *
-   * Otherwise, the configuration from path will be looked up.
-   */
-  def getDeprecated[A: ConfigLoader](path: String, deprecated: String): A = {
-    if (underlying.hasPath(deprecated)) {
-      reportDeprecation(path, deprecated)
-      get[A](deprecated)
-    } else {
+    * Get a deprecated configuration item.
+    *
+    * If the deprecated configuration item is defined, it will be returned, and a warning will be logged.
+    *
+    * Otherwise, the configuration from path will be looked up.
+    */
+  def getDeprecated[A: ConfigLoader](path: String, deprecatedPaths: String*): A = {
+    deprecatedPaths.collectFirst {
+      case deprecated if underlying.hasPath(deprecated) =>
+        reportDeprecation(path, deprecated)
+        get[A](deprecated)
+    }.getOrElse {
       get[A](path)
     }
   }
@@ -1118,6 +1066,18 @@ private[play] object ConfigLoader {
 
   implicit val playConfigLoader = configLoader.map(new PlayConfig(_))
   implicit val seqPlayConfigLoader = seqConfigLoader.map(_.map(new PlayConfig(_)))
+
+  /**
+   * Loads a value, interpreting a null value as None and any other value as Some(value).
+   */
+  implicit def optionLoader[A](implicit valueLoader: ConfigLoader[A]): ConfigLoader[Option[A]] = new ConfigLoader[Option[A]] {
+    def load(config: Config, path: String): Option[A] = {
+      if (config.getIsNull(path)) None else {
+        val value = valueLoader.load(config, path)
+        Some(value)
+      }
+    }
+  }
 
   implicit def mapLoader[A](implicit valueLoader: ConfigLoader[A]): ConfigLoader[Map[String, A]] = new ConfigLoader[Map[String, A]] {
     def load(config: Config, path: String): Map[String, A] = {

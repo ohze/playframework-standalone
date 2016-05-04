@@ -1,8 +1,8 @@
-package play.api
+package play.api.db
 
 import com.sandinh.PlayAlone
 import org.specs2.mutable.Specification
-import play.api.db.{HikariCPConnectionPool, ConnectionPool}
+import play.api.{Application, Play}
 
 /**
  * @author giabao
