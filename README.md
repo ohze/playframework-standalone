@@ -3,39 +3,52 @@ playframework-standalone
 [![Build Status](https://travis-ci.org/giabao/playframework-standalone.svg)](https://travis-ci.org/giabao/playframework-standalone)
 
 ### What?
-This library enable us to use some play (2.4.x) libraries without play itself:
-+ [play-jdbc](https://github.com/playframework/playframework/blob/2.4.x/framework/src/play-jdbc/src/main/scala/play/api/db/DB.scala)
-+ [play-ws](https://www.playframework.com/documentation/2.4.x/ScalaWS)
++ `play-alone` is a stripped version of `"com.typesafe.play" %% "play"`
+(contains only some core classes, and depends only on some obvious libraries such as com.typesafe:config, akka, slf4j-api)
 
-For play version < 2.4 please use [play-jdbc-standalone 2.1.x](http://search.maven.org/#search|ga|1|g%3A%22com.sandinh%22%20play-jdbc-standalone)
++ `play-jdbc-alone` is identical to `"com.typesafe.play" %% "play-jdbc"`
+except that we removed `bonecp` support (and removed bonecp's transitive dependencies) 
+
+play-jdbc-alone depends on play-alone.
+
++ `play-ws-alone` is identical to `"com.typesafe.play" %% "play-ws"`
+except that we removed play.api.libs.{oauth, openid} packages (and removed the corresponding dependencies)
+
+play-ws-alone depends on play-alone and `ws-core-deps` - which contains some extra classes that also be extracted from `"com.typesafe.play" %% "play"`
+
+Thoses library enable us to write code that use some play (2.5.x) libraries without play itself:
++ [play-jdbc](https://www.playframework.com/documentation/2.5.x/ScalaDatabase)
++ [anorm](https://www.playframework.com/documentation/2.5.x/ScalaAnorm)
++ [play-ws](https://www.playframework.com/documentation/2.5.x/ScalaWS)
 
 ### Why?
-+ Your code & config (that use play-jdbc-alone) will exactly same as if you [use play](http://www.playframework.com/documentation/2.4.x/ScalaDatabase)
-+ So, you can use [anorm](http://www.playframework.com/documentation/2.4.x/ScalaAnorm)
- or [other database libraries](http://www.playframework.com/documentation/2.4.x/ScalaDatabaseOthers) (exactly) as in a full play app.
-+ We are using play-jdbc-alone in a db-access library which is used:
-    - In some java game servers (in production with millions users at http://sandinh.com) that is NOT a Play application.
-      Here, we must use log4j instead of logback. Thanks to play-jdbc-alone which do NOT depend on logback (still depend on slf4j-api)
++ The code & config that use play-jdbc-alone/ play-ws-alone is exactly same as if you use full playframework
++ So, you can use [anorm](http://www.playframework.com/documentation/2.5.x/ScalaAnorm)
+ or [other database libraries](http://www.playframework.com/documentation/2.5.x/ScalaDatabaseOthers) (exactly) as in a full play app.
++ We are using play-jdbc-alone, anorm, play-ws-alone in:
+    - Some java game servers (in production with millions users at http://sandinh.com) that is NOT a Play application.
     - And in the banking module (in an iframe at http://sandinh.com/bank) that IS a Play application.
-      Here, we just remove play-jdbc-alone dependency (replaced by the full Play framework)
-+ similar reasons for play-ws-alone
+      Here, we just remove play-jdbc-alone/ play-ws-alone dependency (replaced by the full Play framework + play-jdbc / play-ws)
 
 ### How?
-+ Get the library from [maven center](http://search.maven.org/#search|ga|1|g%3A%22com.sandinh%22%20play-jdbc-alone)
++ Get the library from maven center
+    - for play-jdbc-alone:
 ```
 libraryDependencies += "com.sandinh" %% "play-jdbc-alone" % <playAloneVersion>
 ```
-+ See [DBSpec.scala](https://github.com/giabao/playframework-standalone/blob/master/src/test/scala/play/api/DBSpec.scala)
+    - for play-ws-alone:
+```
+libraryDependencies += "com.sandinh" %% "play-ws-alone" % <playAloneVersion>
+```
 
-+ You can also use the plain `play-jdbc` library with `play-alone`:
+    - for play version < 2.4 please use [play-jdbc-standalone 2.1.x](http://search.maven.org/#search|ga|1|g%3A%22com.sandinh%22%20play-jdbc-standalone)
+
++ Bootstrap the minimal PlayAlone:
 ```
-libraryDependencies ++= Seq(
-  "com.sandinh"       %% "play-alone" % <playAloneVersion>,
-  "com.typesafe.play" %% "play-jdbc" % <playAloneVersion>
-    exclude("com.typesafe.play", "play_" + scalaBinaryVersion.value)
-)
+com.sandinh.PlayAlone.start()
 ```
-(but you will get more dependencies)
+
++ Coding & configuring as normal (see the anorm / play-jdbc / play-ws document from [play website](https://www.playframework.com/documentation/2.5.x/ScalaHome))
 
 ### Compare to the full Play framework
 see [compare-to-play.md](compare-to-play.md)

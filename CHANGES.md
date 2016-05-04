@@ -1,5 +1,13 @@
 ### Changelogs
 
+##### v2.5.3
++ merge with [play 2.5.3](https://github.com/playframework/playframework/tree/2.5.3/framework/src)
++ play-alone now depends on play-iteratees 2.6.0
++ to keep play-alone minimal, in previous versions,
+  we put classes that only play-ws-alone depends on directly in play-ws-alone.
+  In v2.5.3, we put those classes into a new lib `ws-core-deps`.
++ migration: see [Migrate.md]
+
 ##### v2.4.3
 + merge with play source #baec3da (2.4.x branch at 10 Nov 2015)
 + update dependencies

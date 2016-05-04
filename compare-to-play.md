@@ -1,80 +1,46 @@
-Compare to [play 2.4.x branch at 10 Nov 2015](https://github.com/playframework/playframework/tree/baec3da/framework/src):
-
-## play-jdbc-alone
-Exactly same as play-jdbc, except the following:
-+ remove `bonecp` & `evolutions` settings from `reference.conf`
-+ remove BoneConnectionPool initialization case from method `ConnectionPool.fromConfig`
-+ remove file `BoneCPModule.scala`
-+ not depends on BoneCP
-
-## play-ws-alone
-Exactly same as play-ws, except the following:
-+ NingWS: WSResponse.xml is not supported in play-ws-alone (so, we can remove xerces:xercesImpl dependency)
-+ remove play.api.libs.{oauth, openid}
-+ remove deprecated type play.api.libs.ws.WSRequestHolder
-+ add some extra dependency [classes](play-ws/play-src-ex)
- from [play](https://github.com/playframework/playframework/tree/3bf2c14/framework/src/play).
-
- Note:
- + we remove all members of trait Results & trait LegacyI18nSupport
- + other classes has identical content as in original play.
+Compare to [play 2.5.3](https://github.com/playframework/playframework/tree/2.5.3/framework/src):
 
 ## play-alone
 ##### play/src/main/resources/reference.conf
-+ Remove http, i18n, crypto settings
++ Remove http, i18n, crypto settings, application.loader
 + remove modules setting: `enabled += "play.api.i18n.I18nModule"`
 
 ##### play/src/main/scala/play/api/inject/guice/GuiceApplicationBuilder
- + remove `global`
+ + remove param `global`, defs `global`, `routes`, `router`, `additionalRouter` 
  + `applicationModule`:
- 	- remove binding for: `GlobalSettings`, `OptionalSourceMapper`, `WebCommands`
- 	- remove: `Logger.configure(environment)`
+ 	- remove binding for: `GlobalSettings.Deprecated`, `OptionalSourceMapper`, `WebCommands`
+ + remove private classes: `AdditionalRouterProvider`, `FakeRoutes`, `FakeRouterConfig`, `FakeRouterProvider`
 
 ##### play/src/main/scala/play/api/inject/guice/GuiceApplicationLoader
 in `overrides` method:
 + remove binding for OptionalSourceMapper, WebCommands
 
-##### play/src/main/scala/play/api/inject/ApplicationLifecycle
-is simplified by removing (so we can remove many java classes in play):
-+ addStopHook(java.util.concurrent.Callable)
-
 ##### play/src/main/scala/play/api/inject/BuiltinModule
-remove binding for:
-+ HttpConfiguration
-+ Router
-+ Plugins
-+ CryptoConfig
-+ Crypto,
-+ play.Application (java)
++ remove binding for:
+HttpConfiguration, play.Application (java), Router, HttpExecutionContext,
+CryptoConfig, CookieSigner, CSRFTokenSigner, AESCrypter, Crypto, TemporaryFileCreator.
++ remove dynamicBindings for HttpErrorHandler, HttpFilters, HttpRequestHandler, ActionCreator.
++ remove class RoutesProvider
 
 ##### play/src/main/scala/play/api/inject/Modules
 + remove logic that try to locate Java modules
-+ so we can remove play.{Configuration, Environment} & their dependency java classes
-
-##### play/src/main/scala/play/api/Application
-+ `trait Application`: remove global, plugins, plugin, cachedRoutes, routes, requestHandler, errorHandler
-+ `class DefaultApplication` remove plugins, requestHandler, errorHandler
-+ remove class `OptionalSourceMapper` & trait `BuiltInComponents`
+  (so we can remove play.{Configuration, Environment} & their dependency java classes)
 
 ##### play/src/main/scala/play/api/ApplicationLoader
 + `ApplicationLoader.apply`: always return `new GuiceApplicationLoader`
-(instead of dynamic loading the class in play.application.loader config)
+  (instead of dynamic loading the class in play.application.loader config)
 + remove `abstract class BuiltInComponentsFromContext`
 
-##### play/src/main/scala/play/api/Logger
-simplified by removing (so that `play-alone` do NOT have `logback` dependency):
-+ init
-+ configure
-+ shutdown
-+ ColoredLevel
+##### play/src/main/scala/play/api/Application
++ `trait Application`: remove isDev, isTest, isProd, global, plugins, plugin, cachedRoutes, routes, requestHandler, errorHandler
++ `class DefaultApplication` remove requestHandler, errorHandler
++ remove class `OptionalSourceMapper` & trait `BuiltInComponents`
 
 ##### play/src/main/scala/play/api/Play
-+ remove `XML`m `routes`, `global`, `langCookieName`, `langCookieSecure`, `langCookieHttpOnly`
-+ `start`: commented out routes & plugins initialize logic.
-In standalone version, we don't need app.routes
-and playframework-standalone do NOT support the deprecated play Plugin system
-(use Play Module instead)
-+ `stop`: commented out plugins stopping logic.
++ `start`: commented out global.beforeStart / onStart, routes initialize.
+  (In standalone version, we have removed app.routes & app.global)
++ `stop`: commented out: `//app.global.onStop(app)`.
++ remove `routes`, `global`, `langCookieName`, `langCookieSecure`, `langCookieHttpOnly`
 
 ##### play/src/main/scala/play/core/system/WebCommands
 + `WebCommands`: remove all members.
@@ -85,14 +51,31 @@ This trait is not remove so that `play.api.ApplicationLoader.createContext` is c
 ##### play/src/main/scala/play/core/ApplicationProvider
 + remove `ApplicationProvider`, `HandleWebCommandSupport`
 
-##### Other files are have identical content as in Play source
+##### Other files have identical content as in Play source
 
-## play-exceptions
-`play-alone` depends on `play-exceptions` which have no dependencies (except scala-library)
+## play-jdbc-alone
+Exactly same as play-jdbc, except the following:
++ remove `bonecp` & `evolutions` settings from `reference.conf`
++ remove BoneConnectionPool initialization case from method `ConnectionPool.fromConfig`
++ remove file `BoneCPModule.scala`
++ not depends on BoneCP
 
-## play-iteratees
-`play-alone` depends only on `object play.api.libs.iteratee.Execution` in `play-iteratees` library.
+## play-ws-alone
+Exactly same as play-ws, except the following:
++ remove play.api.libs.{oauth, openid}
++ remove `play.modules.enabled += "play.api.libs.openid.OpenIDModule"` from `reference.conf`
++ AhcWSRequest: remove deprecated method `streamWithEnumerator`
++ play.api.libs.ws.ahc.Streamed - remove deprecated method `execute2`
++ WSRequest: remove some deprecated methods
 
-`iteratee.Execution` is used at `play.api.inject.DefaultApplicationLifecycle.stop`.
+## ws-core-deps
++ play/api/http/HttpEntity.scala - remove all `asJava` methods
++ play/api/mvc/ContentTypes.scala - keep only class & object `MultipartFormData`
++ play/api/mvc/Http.scala - keep only class & object `Headers`
++ play/api/mvc/Results.scala - remove all members of trait Results & trait LegacyI18nSupport
++ other classes has identical content as in original play.
 
-`object iteratee.Execution` have no dependencies (except scala-library).
+## play-exceptions, play-iteratees, play-json, play-datacommons, twirl-api
++ `play-alone` depends on `play-exceptions` and `play-iteratees`
++ `play-ws-alone` also depends on `play-json`, `play-datacommons`, `twirl-api`
++ Those libraries depend on no other play libraries
