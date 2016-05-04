@@ -54,4 +54,4 @@ lazy val playAloneRoot = project.in(file("."))
     name := "play-alone-root",
     publishArtifact := false
   )
-  .aggregate(playAlone, jdbcAlone, wsAlone)
+  .aggregate(playAlone, wsCoreDeps, wsAlone, jdbcAlone)
