@@ -1,5 +1,10 @@
 ### Changelogs
 
+##### v2.5.3-1
++ add play-cache-alone
++ compile by scala 2.11.11, sbt 0.13.15 (with sbt-coursier plugin)
++ add `play.libs.F`, `play.libs.Scala` classes to `play-alone`
+
 ##### v2.5.3
 + merge with [play 2.5.3](https://github.com/playframework/playframework/tree/2.5.3/framework/src)
 + play-alone now depends on play-iteratees 2.6.0

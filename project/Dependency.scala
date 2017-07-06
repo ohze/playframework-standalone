@@ -1,7 +1,8 @@
 import sbt._
 
 object V {
-  val scala = "2.11.8"
+  val scala = "2.11.11"
+  val crossScala = Seq(scala, "2.12.2")
   val play = "2.5.3"
   val playIteratee = "2.6.0"
   val guice = "4.0"
@@ -23,6 +24,7 @@ object V {
   val anorm = "2.5.1"
   val h2 = "1.4.191"
   val commonsCodec = "1.10"
+  val ehcache = "2.6.11"
   def specs2(module: String) = "org.specs2" %% s"specs2-$module" % "3.6.6" % Test
 }
 
@@ -69,5 +71,17 @@ object D {
     V.specs2("junit"),
     "com.h2database"      %  "h2"     % V.h2    % Test,
     "com.typesafe.play"   %% "anorm"  % V.anorm % Test
+  )
+
+  def cacheAlone = Seq(
+    "net.sf.ehcache"    % "ehcache-core"    % V.ehcache,
+    "javax.inject"      % "javax.inject"    % "1",
+    "com.typesafe.play" % "play-streams_2.11" % V.play,
+    "com.typesafe.play" %% "play-specs2"    % V.play % Test,
+    "ch.qos.logback"    % "logback-classic" % V.logback % Test,
+    "ch.qos.logback"    % "logback-core"    % V.logback % Test,
+    V.specs2("junit"),
+    V.specs2("core"),
+    V.specs2("mock")
   )
 }

@@ -1,6 +1,7 @@
 lazy val commonSettings = Seq(
-  version := "2.5.3",
+  version := "2.5.3-1-SNAPSHOT",
   scalaVersion := V.scala,
+//  TODO crossScalaVersions := V.crossScala,
   organization := "com.sandinh",
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", "-Yinline-warnings"/*, "-optimise"*/),
   javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation")
@@ -48,10 +49,20 @@ lazy val jdbcAlone = project.in(file("play-jdbc"))
     parallelExecution in Test := false
   ).dependsOn(playAlone)
 
+lazy val cacheAlone = project.in(file("play-cache"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "play-cache-alone",
+    libraryDependencies ++= D.cacheAlone,
+    testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
+    parallelExecution in Test := false
+  ).dependsOn(playAlone, testAlone % "test->test")
+
+
 lazy val playAloneRoot = project.in(file("."))
   .settings(commonSettings: _*)
   .settings(
     name := "play-alone-root",
     publishArtifact := false
   )
-  .aggregate(playAlone, wsCoreDeps, wsAlone, jdbcAlone)
+  .aggregate(playAlone, wsCoreDeps, wsAlone, jdbcAlone, cacheAlone)
