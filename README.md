@@ -1,6 +1,6 @@
 playframework-standalone
 ====================
-[![Build Status](https://travis-ci.org/giabao/playframework-standalone.svg)](https://travis-ci.org/giabao/playframework-standalone)
+[![Build Status](https://travis-ci.org/ohze/playframework-standalone.svg)](https://travis-ci.org/ohze/playframework-standalone)
 
 ### What?
 + `play-alone` is a stripped version of `"com.typesafe.play" %% "play"`
@@ -20,6 +20,7 @@ Thoses library enable us to write code that use some play (2.5.x) libraries with
 + [play-jdbc](https://www.playframework.com/documentation/2.5.x/ScalaDatabase)
 + [anorm](https://www.playframework.com/documentation/2.5.x/ScalaAnorm)
 + [play-ws](https://www.playframework.com/documentation/2.5.x/ScalaWS)
++ [play-cache](https://www.playframework.com/documentation/2.5.x/ScalaCache)
 
 ### Why?
 + The code & config that use play-jdbc-alone/ play-ws-alone is exactly same as if you use full playframework

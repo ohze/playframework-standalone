@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  version := "2.5.3-1-SNAPSHOT",
+  version := "2.5.3-1",
   scalaVersion := V.scala,
 //  TODO crossScalaVersions := V.crossScala,
   organization := "com.sandinh",

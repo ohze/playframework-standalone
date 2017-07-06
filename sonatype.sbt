@@ -1,4 +1,4 @@
-pomExtra in Global := <url>https://github.com/giabao/playframework-standalone</url>
+pomExtra in Global := <url>https://github.com/ohze/playframework-standalone</url>
   <licenses>
     <license>
       <name>Apache 2</name>
@@ -7,8 +7,8 @@ pomExtra in Global := <url>https://github.com/giabao/playframework-standalone</u
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:giabao/playframework-standalone.git</url>
-    <connection>scm:git:git@github.com:giabao/playframework-standalone.git</connection>
+    <url>git@github.com:ohze/playframework-standalone.git</url>
+    <connection>scm:git:git@github.com:ohze/playframework-standalone.git</connection>
   </scm>
   <developers>
     <developer>
