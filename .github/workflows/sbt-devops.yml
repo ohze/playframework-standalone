@@ -19,7 +19,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - uses: coursier/cache-action@v6
-      - run: sbt ++${{ matrix.scala }} devopsQA test
+      - run: sbt ++${{ matrix.scala }} test
       # https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html#Caching
       - run: |
           rm -rf "$HOME/.ivy2/local" || true
