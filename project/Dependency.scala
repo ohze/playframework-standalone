@@ -1,8 +1,6 @@
 import sbt._
 
 object V {
-  val scala = "2.11.11"
-  val crossScala = Seq(scala, "2.12.2")
   val play = "2.5.3"
   val playIteratee = "2.6.0"
   val guice = "4.0"

@@ -1,9 +1,7 @@
 lazy val commonSettings = Seq(
-  version := "2.5.3-1",
-  scalaVersion := V.scala,
+  scalaVersion := scala211,
 //  TODO crossScalaVersions := V.crossScala,
-  organization := "com.sandinh",
-  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", "-Yinline-warnings"/*, "-optimise"*/),
+  Compile / scalacOptions -= "-Xfatal-warnings",
   javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation")
 )
 
@@ -67,3 +65,17 @@ lazy val playAloneRoot = project.in(file("."))
     publishArtifact := false
   )
   .aggregate(playAlone, wsCoreDeps, wsAlone, jdbcAlone, cacheAlone)
+
+inThisBuild(
+  Seq(
+    versionScheme := Some("semver-spec"),
+    developers := List(
+      Developer(
+        "thanhbv",
+        "Bui Viet Thanh",
+        "thanhbv@sandinh.net",
+        url("https://sandinh.com")
+      )
+    )
+  )
+)
