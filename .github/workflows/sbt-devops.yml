@@ -8,8 +8,8 @@ jobs:
       commitMsg: ${{ steps.commitMsg.outputs.msg }}
     strategy:
       matrix:
-        java: [ '8', '11', '17' ]
-        scala: [ '2.11.12', '2.12.15', '2.13.6', '3.0.2' ]
+        java: [ '8' ]
+        scala: [ '2.11.12' ]
     steps:
       - uses: actions/checkout@v2
       - id: commitMsg
