@@ -26,7 +26,8 @@ lazy val testAlone = project.in(file("play-test-alone"))
   .settings(
     name := "play-test-alone",
     publishArtifact := false,
-    unmanagedSourceDirectories in Test <++= baseDirectory { b =>
+    Test / unmanagedSourceDirectories ++= {
+      val b = baseDirectory.value
       Seq("play-server", "play-specs2", "play-test").map(b / _ / "src" / "main" / "scala")
     },
     libraryDependencies ++= D.testAlone
@@ -45,8 +46,8 @@ lazy val jdbcAlone = project.in(file("play-jdbc"))
   .settings(
     name := "play-jdbc-alone",
     libraryDependencies ++= D.jdbcAlone(scalaBinaryVersion.value),
-    testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
-    parallelExecution in Test := false
+    Test/ testOptions += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
+    Test / parallelExecution := false
   ).dependsOn(playAlone)
 
 lazy val cacheAlone = project.in(file("play-cache"))
@@ -54,8 +55,8 @@ lazy val cacheAlone = project.in(file("play-cache"))
   .settings(
     name := "play-cache-alone",
     libraryDependencies ++= D.cacheAlone,
-    testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
-    parallelExecution in Test := false
+    Test / testOptions += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
+    Test / parallelExecution := false
   ).dependsOn(playAlone, testAlone % "test->test")
 
 
