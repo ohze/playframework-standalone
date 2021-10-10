@@ -1,6 +1,6 @@
 playframework-standalone
 ====================
-[![Build Status](https://travis-ci.org/ohze/playframework-standalone.svg)](https://travis-ci.org/ohze/playframework-standalone)
+[![CI](https://github.com/ohze/playframework-standalone/actions/workflows/sbt-devops.yml/badge.svg)](https://github.com/ohze/playframework-standalone/actions/workflows/sbt-devops.yml)
 
 ### What?
 + `play-alone` is a stripped version of `"com.typesafe.play" %% "play"`
